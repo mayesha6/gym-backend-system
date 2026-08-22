@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Welcome to Greetely!</title>
+</head>
+<body style="font-family: Arial, sans-serif; background:#f4f6f8; padding:30px; margin:0;">
+  <div style="max-width:600px; background:#ffffff; margin:auto; padding:30px; border-radius:8px; border:1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+    
+    <h2 style="color:#2ecc71; margin-top:0;">
+      Registration Successful!
+    </h2>
+    
+    <p style="color:#2c3e50; font-size:16px; line-height:1.6;">
+      Hi <%= name %>,
+    </p>
+    
+    <p style="color:#555555; font-size:14px; line-height:1.6;">
+      Your account is now fully set up and ready to use. Welcome to <strong>Greetely</strong>!
+    </p>
+
+    <hr style="border:0; border-top:1px solid #e2e8f0; margin:20px 0;"/>
+
+    <div style="background:#f8fafc; padding:15px; border-radius:6px; border:1px solid #edf2f7; font-size:14px; color:#4a5568;">
+      <p style="margin:5px 0;"><strong>Email:</strong> <%= email %></p>
+      <% if (accountType === 'ORGANIZATION') { %>
+        <p style="margin:5px 0;"><strong>Company Name:</strong> <%= companyName %></p>
+        <p style="margin:5px 0;"><strong>Phone:</strong> <%= phone %></p>
+        <p style="margin:5px 0;"><strong>Account Type:</strong> Organization Admin</p>
+      <% } else { %>
+        <% if (phone && phone !== 'N/A') { %>
+          <p style="margin:5px 0;"><strong>Phone:</strong> <%= phone %></p>
+        <% } %>
+        <p style="margin:5px 0;"><strong>Account Type:</strong> Individual User</p>
+      <% } %>
+    </div>
+
+    <br/>
+    
+    <p style="color:#555555; font-size:14px; line-height:1.6;">
+      You can now log in to your dashboard to start recognizing your peers and tracking your points:
+    </p>
+
+    <p style="text-align: center; margin: 30px 0;">
+      <a href="https://greetely.com/login" style="background:#4f46e5; color:#ffffff; padding:12px 30px; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; display:inline-block;">
+        Log In to Dashboard
+      </a>
+    </p>
+
+    <br/>
+    
+    <p style="color:#888888; font-size:12px; line-height:1.5;">
+      This is an automated email. If you have any questions or require assistance, please feel free to reach out to our support team.
+    </p>
+
+  </div>
+</body>
+</html>
