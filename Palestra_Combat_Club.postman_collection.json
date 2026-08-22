@@ -37,8 +37,13 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/auth/login",
-							"host": ["{{baseUrl}}"],
-							"path": ["auth", "login"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
 						}
 					}
 				},
@@ -49,8 +54,13 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/auth/refresh-token",
-							"host": ["{{baseUrl}}"],
-							"path": ["auth", "refresh-token"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"refresh-token"
+							]
 						}
 					}
 				},
@@ -74,8 +84,13 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/auth/change-password",
-							"host": ["{{baseUrl}}"],
-							"path": ["auth", "change-password"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"change-password"
+							]
 						}
 					}
 				},
@@ -95,8 +110,13 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/otp/send-otp",
-							"host": ["{{baseUrl}}"],
-							"path": ["otp", "send-otp"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"otp",
+								"send-otp"
+							]
 						}
 					}
 				},
@@ -116,8 +136,13 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/otp/verify-otp",
-							"host": ["{{baseUrl}}"],
-							"path": ["otp", "verify-otp"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"otp",
+								"verify-otp"
+							]
 						}
 					}
 				}
@@ -142,12 +167,17 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Marcus Thorne\",\n  \"email\": \"marcus.t@example.com\",\n  \"phone\": \"+1 213 555 0184\",\n  \"membershipPlan\": \"MEMBERSHIP_PLAN_ID_HERE\",\n  \"startDate\": \"2026-08-14\",\n  \"expireDate\": \"2027-08-14\",\n  \"status\": \"ACTIVE\",\n  \"emergencyContact\": {\n    \"name\": \"John Thorne\",\n    \"phone\": \"+1 213 555 9999\",\n    \"relationship\": \"Brother\"\n  }\n}"
+							"raw": "{\n  \"name\": \"Marcus Thorne\",\n  \"email\": \"marcus.t@example.com\",\n  \"password\": \"MemberPass@1234\",\n  \"phone\": \"+1 213 555 0184\",\n  \"membershipPlan\": \"MEMBERSHIP_PLAN_ID_HERE\",\n  \"startDate\": \"2026-08-14\",\n  \"expireDate\": \"2027-08-14\",\n  \"status\": \"ACTIVE\",\n  \"emergencyContact\": {\n    \"name\": \"John Thorne\",\n    \"phone\": \"+1 213 555 9999\",\n    \"relationship\": \"Brother\"\n  }\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/user/add-member",
-							"host": ["{{baseUrl}}"],
-							"path": ["user", "add-member"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"add-member"
+							]
 						}
 					}
 				},
@@ -163,13 +193,30 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/user/all-users?page=1&limit=10&search=Marcus&role=MEMBER",
-							"host": ["{{baseUrl}}"],
-							"path": ["user", "all-users"],
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"all-users"
+							],
 							"query": [
-								{ "key": "page", "value": "1" },
-								{ "key": "limit", "value": "10" },
-								{ "key": "search", "value": "Marcus" },
-								{ "key": "role", "value": "MEMBER" }
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "search",
+									"value": "Marcus"
+								},
+								{
+									"key": "role",
+									"value": "MEMBER"
+								}
 							]
 						}
 					}
@@ -186,8 +233,13 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/user/me",
-							"host": ["{{baseUrl}}"],
-							"path": ["user", "me"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"me"
+							]
 						}
 					}
 				},
@@ -203,10 +255,18 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/user/:id",
-							"host": ["{{baseUrl}}"],
-							"path": ["user", ":id"],
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								":id"
+							],
 							"variable": [
-								{ "key": "id", "value": "USER_ID_HERE" }
+								{
+									"key": "id",
+									"value": "USER_ID_HERE"
+								}
 							]
 						}
 					}
@@ -231,8 +291,13 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/user/update-my-profile",
-							"host": ["{{baseUrl}}"],
-							"path": ["user", "update-my-profile"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"update-my-profile"
+							]
 						}
 					}
 				},
@@ -256,10 +321,18 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/user/:id",
-							"host": ["{{baseUrl}}"],
-							"path": ["user", ":id"],
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								":id"
+							],
 							"variable": [
-								{ "key": "id", "value": "USER_ID_HERE" }
+								{
+									"key": "id",
+									"value": "USER_ID_HERE"
+								}
 							]
 						}
 					}
@@ -276,10 +349,18 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/user/:id",
-							"host": ["{{baseUrl}}"],
-							"path": ["user", ":id"],
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								":id"
+							],
 							"variable": [
-								{ "key": "id", "value": "USER_ID_HERE" }
+								{
+									"key": "id",
+									"value": "USER_ID_HERE"
+								}
 							]
 						}
 					}
@@ -309,8 +390,12 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/membership-plan",
-							"host": ["{{baseUrl}}"],
-							"path": ["membership-plan"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"membership-plan"
+							]
 						}
 					}
 				},
@@ -321,8 +406,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/membership-plan",
-							"host": ["{{baseUrl}}"],
-							"path": ["membership-plan"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"membership-plan"
+							]
 						}
 					}
 				},
@@ -333,10 +422,18 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/membership-plan/:id",
-							"host": ["{{baseUrl}}"],
-							"path": ["membership-plan", ":id"],
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"membership-plan",
+								":id"
+							],
 							"variable": [
-								{ "key": "id", "value": "PLAN_ID_HERE" }
+								{
+									"key": "id",
+									"value": "PLAN_ID_HERE"
+								}
 							]
 						}
 					}
@@ -361,10 +458,18 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/membership-plan/:id",
-							"host": ["{{baseUrl}}"],
-							"path": ["membership-plan", ":id"],
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"membership-plan",
+								":id"
+							],
 							"variable": [
-								{ "key": "id", "value": "PLAN_ID_HERE" }
+								{
+									"key": "id",
+									"value": "PLAN_ID_HERE"
+								}
 							]
 						}
 					}
@@ -381,10 +486,18 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/membership-plan/:id",
-							"host": ["{{baseUrl}}"],
-							"path": ["membership-plan", ":id"],
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"membership-plan",
+								":id"
+							],
 							"variable": [
-								{ "key": "id", "value": "PLAN_ID_HERE" }
+								{
+									"key": "id",
+									"value": "PLAN_ID_HERE"
+								}
 							]
 						}
 					}
@@ -406,8 +519,13 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/membership/my-membership",
-							"host": ["{{baseUrl}}"],
-							"path": ["membership", "my-membership"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"membership",
+								"my-membership"
+							]
 						}
 					}
 				},
@@ -431,8 +549,13 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/membership/request-change",
-							"host": ["{{baseUrl}}"],
-							"path": ["membership", "request-change"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"membership",
+								"request-change"
+							]
 						}
 					}
 				},
@@ -448,8 +571,13 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/membership/cancel",
-							"host": ["{{baseUrl}}"],
-							"path": ["membership", "cancel"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"membership",
+								"cancel"
+							]
 						}
 					}
 				}
@@ -478,8 +606,12 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/category",
-							"host": ["{{baseUrl}}"],
-							"path": ["category"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"category"
+							]
 						}
 					}
 				},
@@ -490,8 +622,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/category",
-							"host": ["{{baseUrl}}"],
-							"path": ["category"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"category"
+							]
 						}
 					}
 				},
@@ -515,10 +651,18 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/category/:id",
-							"host": ["{{baseUrl}}"],
-							"path": ["category", ":id"],
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"category",
+								":id"
+							],
 							"variable": [
-								{ "key": "id", "value": "CATEGORY_ID_HERE" }
+								{
+									"key": "id",
+									"value": "CATEGORY_ID_HERE"
+								}
 							]
 						}
 					}
@@ -535,10 +679,18 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/category/:id",
-							"host": ["{{baseUrl}}"],
-							"path": ["category", ":id"],
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"category",
+								":id"
+							],
 							"variable": [
-								{ "key": "id", "value": "CATEGORY_ID_HERE" }
+								{
+									"key": "id",
+									"value": "CATEGORY_ID_HERE"
+								}
 							]
 						}
 					}
@@ -568,8 +720,12 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/class",
-							"host": ["{{baseUrl}}"],
-							"path": ["class"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"class"
+							]
 						}
 					}
 				},
@@ -580,11 +736,22 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/class/schedule?startDate=2026-08-24&endDate=2026-08-30",
-							"host": ["{{baseUrl}}"],
-							"path": ["class", "schedule"],
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"class",
+								"schedule"
+							],
 							"query": [
-								{ "key": "startDate", "value": "2026-08-24" },
-								{ "key": "endDate", "value": "2026-08-30" }
+								{
+									"key": "startDate",
+									"value": "2026-08-24"
+								},
+								{
+									"key": "endDate",
+									"value": "2026-08-30"
+								}
 							]
 						}
 					}
@@ -596,10 +763,18 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/class/:id",
-							"host": ["{{baseUrl}}"],
-							"path": ["class", ":id"],
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"class",
+								":id"
+							],
 							"variable": [
-								{ "key": "id", "value": "CLASS_ID_HERE" }
+								{
+									"key": "id",
+									"value": "CLASS_ID_HERE"
+								}
 							]
 						}
 					}
@@ -624,10 +799,18 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/class/:id",
-							"host": ["{{baseUrl}}"],
-							"path": ["class", ":id"],
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"class",
+								":id"
+							],
 							"variable": [
-								{ "key": "id", "value": "CLASS_ID_HERE" }
+								{
+									"key": "id",
+									"value": "CLASS_ID_HERE"
+								}
 							]
 						}
 					}
@@ -644,10 +827,18 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/class/:id",
-							"host": ["{{baseUrl}}"],
-							"path": ["class", ":id"],
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"class",
+								":id"
+							],
 							"variable": [
-								{ "key": "id", "value": "CLASS_ID_HERE" }
+								{
+									"key": "id",
+									"value": "CLASS_ID_HERE"
+								}
 							]
 						}
 					}
@@ -677,8 +868,13 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/booking/enroll",
-							"host": ["{{baseUrl}}"],
-							"path": ["booking", "enroll"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"booking",
+								"enroll"
+							]
 						}
 					}
 				},
@@ -694,10 +890,19 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/booking/unenroll/:classId",
-							"host": ["{{baseUrl}}"],
-							"path": ["booking", "unenroll", ":classId"],
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"booking",
+								"unenroll",
+								":classId"
+							],
 							"variable": [
-								{ "key": "classId", "value": "CLASS_ID_HERE" }
+								{
+									"key": "classId",
+									"value": "CLASS_ID_HERE"
+								}
 							]
 						}
 					}
@@ -714,10 +919,19 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/booking/whos-going/:classId",
-							"host": ["{{baseUrl}}"],
-							"path": ["booking", "whos-going", ":classId"],
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"booking",
+								"whos-going",
+								":classId"
+							],
 							"variable": [
-								{ "key": "classId", "value": "CLASS_ID_HERE" }
+								{
+									"key": "classId",
+									"value": "CLASS_ID_HERE"
+								}
 							]
 						}
 					}
@@ -734,10 +948,19 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/booking/roster/:classId",
-							"host": ["{{baseUrl}}"],
-							"path": ["booking", "roster", ":classId"],
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"booking",
+								"roster",
+								":classId"
+							],
 							"variable": [
-								{ "key": "classId", "value": "CLASS_ID_HERE" }
+								{
+									"key": "classId",
+									"value": "CLASS_ID_HERE"
+								}
 							]
 						}
 					}
@@ -759,8 +982,13 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/dashboard/metrics",
-							"host": ["{{baseUrl}}"],
-							"path": ["dashboard", "metrics"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"dashboard",
+								"metrics"
+							]
 						}
 					}
 				}
@@ -776,8 +1004,13 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/setting/gym-info",
-							"host": ["{{baseUrl}}"],
-							"path": ["setting", "gym-info"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"setting",
+								"gym-info"
+							]
 						}
 					}
 				},
@@ -801,8 +1034,13 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/setting/gym-info",
-							"host": ["{{baseUrl}}"],
-							"path": ["setting", "gym-info"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"setting",
+								"gym-info"
+							]
 						}
 					}
 				},
@@ -826,8 +1064,13 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/setting/gymdesk-config",
-							"host": ["{{baseUrl}}"],
-							"path": ["setting", "gymdesk-config"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"setting",
+								"gymdesk-config"
+							]
 						}
 					}
 				},
@@ -843,8 +1086,13 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/setting/gymdesk-sync",
-							"host": ["{{baseUrl}}"],
-							"path": ["setting", "gymdesk-sync"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"setting",
+								"gymdesk-sync"
+							]
 						}
 					}
 				}

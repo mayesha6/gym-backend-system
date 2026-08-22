@@ -39,6 +39,7 @@ const createUser = async (payload: Partial<IUser>) => {
 const addMember = async (payload: {
   name: string;
   email: string;
+  password?: string;
   phone?: string;
   membershipPlan?: string;
   startDate?: string;
@@ -52,8 +53,8 @@ const addMember = async (payload: {
   }
 
   const memberId = await generateMemberId();
-  const defaultPassword = `Palestra@${Math.floor(1000 + Math.random() * 9000)}`;
-  const hashedPassword = await bcryptjs.hash(defaultPassword, 10);
+  const rawPassword = payload.password || `Palestra@${Math.floor(1000 + Math.random() * 9000)}`;
+  const hashedPassword = await bcryptjs.hash(rawPassword, 10);
 
   const user = await User.create({
     memberId,
@@ -71,7 +72,11 @@ const addMember = async (payload: {
 
   return {
     user,
-    defaultPassword
+    credentials: {
+      email: payload.email,
+      password: rawPassword,
+      memberId
+    }
   };
 };
 
