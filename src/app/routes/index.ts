@@ -3,6 +3,7 @@ import { UserRoutes } from "../modules/user/user.routes";
 import { AuthRoutes } from "../modules/auth/auth.routes";
 import { OtpRoutes } from "../modules/otp/otp.routes";
 import { MembershipPlanRoutes } from "../modules/membershipPlan/membershipPlan.routes";
+import { MembershipRoutes } from "../modules/membership/membership.routes";
 
 export const router = Router();
 
@@ -22,6 +23,10 @@ const moduleRoutes = [
   {
     path: "/membership-plan",
     route: MembershipPlanRoutes,
+  },
+  {
+    path: "/membership",
+    route: MembershipRoutes,
   },
 ];
 
