@@ -38,8 +38,8 @@ interface EnvConfig {
   };
   REDIS_HOST: string;
   REDIS_PORT: string;
-  // REDIS_USERNAME: string;
-  // REDIS_PASSWORD: string;
+  REDIS_USERNAME?: string;
+  REDIS_PASSWORD?: string;
   S3: {
     S3_ACCESS_KEY: string;
     S3_SECRET_KEY: string;
@@ -144,8 +144,8 @@ const loadEnvVariables = (): EnvConfig => {
     },
     REDIS_HOST: process.env.REDIS_HOST as string,
     REDIS_PORT: process.env.REDIS_PORT as string,
-    // REDIS_USERNAME: process.env.REDIS_USERNAME as string,
-    // REDIS_PASSWORD: process.env.REDIS_PASSWORD as string,
+    REDIS_USERNAME: process.env.REDIS_USERNAME,
+    REDIS_PASSWORD: process.env.REDIS_PASSWORD,
     S3: {
       S3_ACCESS_KEY: process.env.S3_ACCESS_KEY as string,
       S3_SECRET_KEY: process.env.S3_SECRET_KEY as string,
