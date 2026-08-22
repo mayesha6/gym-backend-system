@@ -8,6 +8,7 @@ import { CategoryRoutes } from "../modules/category/category.routes";
 import { ClassRoutes } from "../modules/class/class.routes";
 import { BookingRoutes } from "../modules/booking/booking.routes";
 import { DashboardRoutes } from "../modules/dashboard/dashboard.routes";
+import { SettingRoutes } from "../modules/setting/setting.routes";
 
 export const router = Router();
 
@@ -47,6 +48,10 @@ const moduleRoutes = [
   {
     path: "/dashboard",
     route: DashboardRoutes,
+  },
+  {
+    path: "/setting",
+    route: SettingRoutes,
   },
 ];
 
