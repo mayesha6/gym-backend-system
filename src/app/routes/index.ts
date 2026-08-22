@@ -4,6 +4,7 @@ import { AuthRoutes } from "../modules/auth/auth.routes";
 import { OtpRoutes } from "../modules/otp/otp.routes";
 import { MembershipPlanRoutes } from "../modules/membershipPlan/membershipPlan.routes";
 import { MembershipRoutes } from "../modules/membership/membership.routes";
+import { CategoryRoutes } from "../modules/category/category.routes";
 
 export const router = Router();
 
@@ -27,6 +28,10 @@ const moduleRoutes = [
   {
     path: "/membership",
     route: MembershipRoutes,
+  },
+  {
+    path: "/category",
+    route: CategoryRoutes,
   },
 ];
 
