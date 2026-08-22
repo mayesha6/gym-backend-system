@@ -1,0 +1,854 @@
+{
+	"info": {
+		"_postman_id": "palestra-combat-club-api-collection",
+		"name": "Palestra Combat Club - Full API Collection",
+		"description": "Complete Postman collection for Palestra Combat Club Gym Management Backend System containing all request bodies, route parameters, headers, and query parameters.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "YOUR_JWT_ACCESS_TOKEN_HERE",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Authentication & OTP",
+			"item": [
+				{
+					"name": "Login (Credentials)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@palestra.club\",\n  \"password\": \"Palestra@1234\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Refresh Access Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/refresh-token",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "refresh-token"]
+						}
+					}
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"oldPassword\": \"Palestra@1234\",\n  \"newPassword\": \"NewPalestraPass@2026\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/change-password",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "change-password"]
+						}
+					}
+				},
+				{
+					"name": "Send OTP (Forgot Password)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"member@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/otp/send-otp",
+							"host": ["{{baseUrl}}"],
+							"path": ["otp", "send-otp"]
+						}
+					}
+				},
+				{
+					"name": "Verify OTP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"member@example.com\",\n  \"otp\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/otp/verify-otp",
+							"host": ["{{baseUrl}}"],
+							"path": ["otp", "verify-otp"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. User & Member Management",
+			"item": [
+				{
+					"name": "Add Member (Admin Only)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Marcus Thorne\",\n  \"email\": \"marcus.t@example.com\",\n  \"phone\": \"+1 213 555 0184\",\n  \"membershipPlan\": \"MEMBERSHIP_PLAN_ID_HERE\",\n  \"startDate\": \"2026-08-14\",\n  \"expireDate\": \"2027-08-14\",\n  \"status\": \"ACTIVE\",\n  \"emergencyContact\": {\n    \"name\": \"John Thorne\",\n    \"phone\": \"+1 213 555 9999\",\n    \"relationship\": \"Brother\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/add-member",
+							"host": ["{{baseUrl}}"],
+							"path": ["user", "add-member"]
+						}
+					}
+				},
+				{
+					"name": "Get All Users / Members (Admin Datatable)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/all-users?page=1&limit=10&search=Marcus&role=MEMBER",
+							"host": ["{{baseUrl}}"],
+							"path": ["user", "all-users"],
+							"query": [
+								{ "key": "page", "value": "1" },
+								{ "key": "limit", "value": "10" },
+								{ "key": "search", "value": "Marcus" },
+								{ "key": "role", "value": "MEMBER" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Current User Profile (/me)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["user", "me"]
+						}
+					}
+				},
+				{
+					"name": "Get Single Member Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["user", ":id"],
+							"variable": [
+								{ "key": "id", "value": "USER_ID_HERE" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Update My Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Marcus Rivera\",\n  \"phone\": \"+1 305 123 4567\",\n  \"dateOfBirth\": \"1992-05-15\",\n  \"emergencyContact\": {\n    \"name\": \"Elena Rivera\",\n    \"phone\": \"+1 305 987 6543\",\n    \"relationship\": \"Spouse\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/update-my-profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["user", "update-my-profile"]
+						}
+					}
+				},
+				{
+					"name": "Update User (Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Marcus Thorne Updated\",\n  \"phone\": \"+1 213 555 8888\",\n  \"isActive\": \"ACTIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["user", ":id"],
+							"variable": [
+								{ "key": "id", "value": "USER_ID_HERE" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete User (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["user", ":id"],
+							"variable": [
+								{ "key": "id", "value": "USER_ID_HERE" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Membership Plan Management",
+			"item": [
+				{
+					"name": "Create Membership Plan (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Premium\",\n  \"price\": 99,\n  \"monthlyClassLimit\": 12,\n  \"bookingWindowHours\": 72,\n  \"supportLevel\": \"VIP\",\n  \"features\": [\n    \"12 Group Classes\",\n    \"Private Training\",\n    \"Semi-Private Classes\",\n    \"Priority Booking\",\n    \"Pickup Service\",\n    \"Member Events\"\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/membership-plan",
+							"host": ["{{baseUrl}}"],
+							"path": ["membership-plan"]
+						}
+					}
+				},
+				{
+					"name": "Get All Membership Plans",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/membership-plan",
+							"host": ["{{baseUrl}}"],
+							"path": ["membership-plan"]
+						}
+					}
+				},
+				{
+					"name": "Get Single Membership Plan",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/membership-plan/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["membership-plan", ":id"],
+							"variable": [
+								{ "key": "id", "value": "PLAN_ID_HERE" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Membership Plan (Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"price\": 109,\n  \"monthlyClassLimit\": 14\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/membership-plan/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["membership-plan", ":id"],
+							"variable": [
+								{ "key": "id", "value": "PLAN_ID_HERE" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Membership Plan (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/membership-plan/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["membership-plan", ":id"],
+							"variable": [
+								{ "key": "id", "value": "PLAN_ID_HERE" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. User Membership Subscriptions",
+			"item": [
+				{
+					"name": "Get My Membership Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/membership/my-membership",
+							"host": ["{{baseUrl}}"],
+							"path": ["membership", "my-membership"]
+						}
+					}
+				},
+				{
+					"name": "Request Plan Change (Upgrade / Downgrade)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"targetPlanId\": \"TARGET_MEMBERSHIP_PLAN_ID_HERE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/membership/request-change",
+							"host": ["{{baseUrl}}"],
+							"path": ["membership", "request-change"]
+						}
+					}
+				},
+				{
+					"name": "Request Membership Cancellation (30-Day Notice)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/membership/cancel",
+							"host": ["{{baseUrl}}"],
+							"path": ["membership", "cancel"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Class Category Management",
+			"item": [
+				{
+					"name": "Create Class Category (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Boxing\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/category",
+							"host": ["{{baseUrl}}"],
+							"path": ["category"]
+						}
+					}
+				},
+				{
+					"name": "Get All Class Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/category",
+							"host": ["{{baseUrl}}"],
+							"path": ["category"]
+						}
+					}
+				},
+				{
+					"name": "Update Class Category (Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Boxing & Conditioning\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/category/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["category", ":id"],
+							"variable": [
+								{ "key": "id", "value": "CATEGORY_ID_HERE" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Class Category (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/category/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["category", ":id"],
+							"variable": [
+								{ "key": "id", "value": "CATEGORY_ID_HERE" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Class Scheduling & Management",
+			"item": [
+				{
+					"name": "Create Class Session (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Strength Training\",\n  \"categoryId\": \"CATEGORY_ID_HERE\",\n  \"coachId\": \"COACH_USER_ID_HERE\",\n  \"maxCapacity\": 16,\n  \"date\": \"2026-08-25\",\n  \"startTime\": \"9:00 AM\",\n  \"endTime\": \"10:00 AM\",\n  \"allowedPlans\": [\"Basic\", \"Standard\", \"Premium\"],\n  \"location\": \"Main Studio\",\n  \"coachNotes\": \"Please arrive 10 minutes early and bring your training shoes.\",\n  \"requirements\": [\n    \"Arrive 10 minutes early\",\n    \"Bring proper training equipment\",\n    \"Bring a water bottle\"\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/class",
+							"host": ["{{baseUrl}}"],
+							"path": ["class"]
+						}
+					}
+				},
+				{
+					"name": "Get Weekly Class Schedule",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/class/schedule?startDate=2026-08-24&endDate=2026-08-30",
+							"host": ["{{baseUrl}}"],
+							"path": ["class", "schedule"],
+							"query": [
+								{ "key": "startDate", "value": "2026-08-24" },
+								{ "key": "endDate", "value": "2026-08-30" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Single Class Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/class/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["class", ":id"],
+							"variable": [
+								{ "key": "id", "value": "CLASS_ID_HERE" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Class Session (Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"maxCapacity\": 20,\n  \"location\": \"Palestra Main Studio\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/class/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["class", ":id"],
+							"variable": [
+								{ "key": "id", "value": "CLASS_ID_HERE" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Class Session (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/class/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["class", ":id"],
+							"variable": [
+								{ "key": "id", "value": "CLASS_ID_HERE" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "7. Class Booking & Roster",
+			"item": [
+				{
+					"name": "Enroll in Class",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"classId\": \"CLASS_ID_HERE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/booking/enroll",
+							"host": ["{{baseUrl}}"],
+							"path": ["booking", "enroll"]
+						}
+					}
+				},
+				{
+					"name": "Unenroll from Class",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/booking/unenroll/:classId",
+							"host": ["{{baseUrl}}"],
+							"path": ["booking", "unenroll", ":classId"],
+							"variable": [
+								{ "key": "classId", "value": "CLASS_ID_HERE" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Who's Going List (Public Class Modal)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/booking/whos-going/:classId",
+							"host": ["{{baseUrl}}"],
+							"path": ["booking", "whos-going", ":classId"],
+							"variable": [
+								{ "key": "classId", "value": "CLASS_ID_HERE" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Class Roster (Admin / Coach)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/booking/roster/:classId",
+							"host": ["{{baseUrl}}"],
+							"path": ["booking", "roster", ":classId"],
+							"variable": [
+								{ "key": "classId", "value": "CLASS_ID_HERE" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "8. Admin Dashboard Analytics",
+			"item": [
+				{
+					"name": "Get Admin Metrics (KPI Stats)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/dashboard/metrics",
+							"host": ["{{baseUrl}}"],
+							"path": ["dashboard", "metrics"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "9. Gym Settings & Gymdesk Integration",
+			"item": [
+				{
+					"name": "Get Gym Profile Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/setting/gym-info",
+							"host": ["{{baseUrl}}"],
+							"path": ["setting", "gym-info"]
+						}
+					}
+				},
+				{
+					"name": "Update Gym Profile Info (Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"gymName\": \"Palestra Combat Club\",\n  \"address\": \"42 Warrior Ave, Miami, FL 33101\",\n  \"phone\": \"+1 (305) 555-0190\",\n  \"email\": \"admin@palestra.club\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/setting/gym-info",
+							"host": ["{{baseUrl}}"],
+							"path": ["setting", "gym-info"]
+						}
+					}
+				},
+				{
+					"name": "Update Gymdesk Config (Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"gymdeskApiKey\": \"gd_live_secret_key_12345\",\n  \"gymdeskSyncFrequency\": \"Every 1 Hour\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/setting/gymdesk-config",
+							"host": ["{{baseUrl}}"],
+							"path": ["setting", "gymdesk-config"]
+						}
+					}
+				},
+				{
+					"name": "Trigger Gymdesk Manual Sync (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/setting/gymdesk-sync",
+							"host": ["{{baseUrl}}"],
+							"path": ["setting", "gymdesk-sync"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
