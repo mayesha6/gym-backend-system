@@ -1,8 +1,5 @@
 import { model, Schema } from "mongoose";
-import { AccountStatus, AccountType, IAuthProvider, IsActive, IUser, Role } from "./user.interface";
-import { SubscriptionStatus } from "../subscription/subscription.interface";
-import { Types } from "mongoose";
-
+import { IAuthProvider, IEmergencyContact, IsActive, IUser, Role } from "./user.interface";
 
 const authProviderSchema = new Schema<IAuthProvider>({
     provider: { type: String, required: true },
@@ -10,55 +7,44 @@ const authProviderSchema = new Schema<IAuthProvider>({
 }, {
     versionKey: false,
     _id: false
-})
+});
+
+const emergencyContactSchema = new Schema<IEmergencyContact>({
+    name: { type: String },
+    phone: { type: String },
+    relationship: { type: String }
+}, {
+    versionKey: false,
+    _id: false
+});
 
 const userSchema = new Schema<IUser>({
+    memberId: { type: String, unique: true, sparse: true },
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String },
+    phone: { type: String },
+    picture: { type: String },
     role: {
         type: String,
         enum: Object.values(Role),
-        default: Role.USER
+        default: Role.MEMBER
     },
-    department: { type: String, required: false, default: "Personal Account" },
-    phone: { type: String, required: false },
-    companyName: { type: String, required: false },
-    accountType: {
-        type: String,
-        enum: Object.values(AccountType),
-        default: AccountType.INDIVIDUAL
-    },
-    status: {
-        type: String,
-        enum: Object.values(AccountStatus),
-        default: AccountStatus.APPROVED, // default normal user approved
-    },
-
-    picture: { type: String },
-    isDeleted: { type: Boolean, default: false },
     isActive: {
         type: String,
         enum: Object.values(IsActive),
-        default: IsActive.ACTIVE,
+        default: IsActive.ACTIVE
     },
-    isVerified: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: true },
+    dateOfBirth: { type: Date },
+    joinDate: { type: Date, default: Date.now },
+    emergencyContact: emergencyContactSchema,
     auths: [authProviderSchema],
-    // 🔥 SaaS & Tenant Fields
-    organizationId: { type: Types.ObjectId, ref: "User", default: null },
-    createdBy: { type: Types.ObjectId, ref: "User", default: null },
-    
-    stripeCustomerId: { type: String, default: null },
-    stripeSubscriptionId: { type: String, default: null },
-    subscriptionStatus: { 
-        type: String, 
-        enum: Object.values(SubscriptionStatus),
-        default: null 
-    },
-    currentPlan: { type: Types.ObjectId, ref: "Plan", default: null }
+    currentPlan: { type: Schema.Types.ObjectId, ref: "MembershipPlan", default: null }
 }, {
     timestamps: true,
     versionKey: false
-})
+});
 
-export const User = model<IUser>("User", userSchema)
+export const User = model<IUser>("User", userSchema);

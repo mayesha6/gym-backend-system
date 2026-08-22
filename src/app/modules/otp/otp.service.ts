@@ -41,34 +41,16 @@ const verifySignupOtp = async (email: string, otp: string | number) => {
   user.isVerified = true;
   await user.save();
 
-  // Step 5: Send confirmation emails
-  if (user.accountType === "INDIVIDUAL") {
-    sendEmail({
-      to: user.email,
-      subject: "Successful Registration - Welcome to Greetely",
-      templateName: "registrationSuccess",
-      templateData: {
-        name: user.name,
-        email: user.email,
-        phone: user.phone || "N/A",
-        accountType: user.accountType,
-        senderName: "Greetely Team",
-      },
-    }).catch((err) => console.error("Email verification notification failed:", err));
-  } else if (user.accountType === "ORGANIZATION") {
-    sendEmail({
-      to: user.email,
-      subject: "Registration Received - Pending Approval",
-      templateName: "orgPendingApproval",
-      templateData: {
-        name: user.name,
-        email: user.email,
-        phone: user.phone || "N/A",
-        companyName: user.companyName || "N/A",
-        senderName: "Greetely Team",
-      },
-    }).catch((err) => console.error("Org verification notification failed:", err));
-  }
+  // Step 5: Send confirmation email
+  sendEmail({
+    to: user.email,
+    subject: "Welcome to Palestra Combat Club",
+    templateName: "otp",
+    templateData: {
+      name: user.name,
+      otp: "Verified",
+    },
+  }).catch((err) => console.error("Email verification notification failed:", err));
 
   return user;
 };
