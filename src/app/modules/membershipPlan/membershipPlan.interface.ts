@@ -8,6 +8,7 @@ export interface IMembershipPlan {
   bookingWindowHours: number; // e.g. 24, 48, 72
   supportLevel?: string; // Standard, Priority, VIP
   features: string[]; // Group Classes, Private Classes, etc.
+  rules?: string[]; // Class allowance resets, booked 2 hours in advance, etc.
   isActive?: boolean;
   createdAt?: Date;
   updatedAt?: Date;

@@ -7,6 +7,7 @@ export const createMembershipPlanZodSchema = z.object({
   bookingWindowHours: z.number().optional(),
   supportLevel: z.string().optional(),
   features: z.array(z.string()).optional(),
+  rules: z.array(z.string()).optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -17,5 +18,6 @@ export const updateMembershipPlanZodSchema = z.object({
   bookingWindowHours: z.number().optional(),
   supportLevel: z.string().optional(),
   features: z.array(z.string()).optional(),
+  rules: z.array(z.string()).optional(),
   isActive: z.boolean().optional(),
 });
