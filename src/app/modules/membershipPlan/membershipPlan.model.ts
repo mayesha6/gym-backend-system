@@ -1,5 +1,13 @@
 import { model, Schema } from "mongoose";
-import { IMembershipPlan } from "./membershipPlan.interface";
+import { IMembershipPlan, IWhatsIncluded } from "./membershipPlan.interface";
+
+const whatsIncludedSchema = new Schema<IWhatsIncluded>(
+  {
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+  },
+  { _id: false }
+);
 
 const membershipPlanSchema = new Schema<IMembershipPlan>(
   {
@@ -10,6 +18,7 @@ const membershipPlanSchema = new Schema<IMembershipPlan>(
     supportLevel: { type: String, default: "Standard" },
     features: [{ type: String }],
     rules: [{ type: String }],
+    whatsIncluded: [whatsIncludedSchema],
     isActive: { type: Boolean, default: true },
   },
   {

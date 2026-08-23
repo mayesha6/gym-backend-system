@@ -1,5 +1,10 @@
 import { Types } from "mongoose";
 
+export interface IWhatsIncluded {
+  title: string;
+  description: string;
+}
+
 export interface IMembershipPlan {
   _id?: Types.ObjectId;
   title: string; // Basic, Standard, Premium
@@ -9,6 +14,7 @@ export interface IMembershipPlan {
   supportLevel?: string; // Standard, Priority, VIP
   features: string[]; // Group Classes, Private Classes, etc.
   rules?: string[]; // Class allowance resets, booked 2 hours in advance, etc.
+  whatsIncluded?: IWhatsIncluded[];
   isActive?: boolean;
   createdAt?: Date;
   updatedAt?: Date;

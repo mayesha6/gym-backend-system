@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+const whatsIncludedZodSchema = z.object({
+  title: z.string().min(1, { message: "Title is required" }),
+  description: z.string().min(1, { message: "Description is required" }),
+});
+
 export const createMembershipPlanZodSchema = z.object({
   title: z.string().min(2, { message: "Title must be at least 2 characters" }),
   price: z.number().min(0, { message: "Price cannot be negative" }),
@@ -8,6 +13,7 @@ export const createMembershipPlanZodSchema = z.object({
   supportLevel: z.string().optional(),
   features: z.array(z.string()).optional(),
   rules: z.array(z.string()).optional(),
+  whatsIncluded: z.array(whatsIncludedZodSchema).optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -19,5 +25,6 @@ export const updateMembershipPlanZodSchema = z.object({
   supportLevel: z.string().optional(),
   features: z.array(z.string()).optional(),
   rules: z.array(z.string()).optional(),
+  whatsIncluded: z.array(whatsIncludedZodSchema).optional(),
   isActive: z.boolean().optional(),
 });
