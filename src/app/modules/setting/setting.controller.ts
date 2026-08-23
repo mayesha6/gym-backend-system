@@ -15,6 +15,10 @@ const getGymInfo = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateGymInfo = catchAsync(async (req: Request, res: Response) => {
+  if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+    const file = req.files[0] as Express.MulterS3.File;
+    req.body.logo = file.location;
+  }
   const result = await SettingServices.updateGymInfo(req.body);
   sendResponse(res, {
     success: true,
