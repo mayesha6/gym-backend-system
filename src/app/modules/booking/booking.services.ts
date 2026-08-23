@@ -1,5 +1,7 @@
 import httpStatus from "http-status-codes";
 import AppError from "../../errorHelpers/AppError";
+import { doTimesOverlap, isSameDay } from "../../utils/timeUtils";
+import { IClassSession } from "../class/class.interface";
 import { ClassSession } from "../class/class.model";
 import { MembershipServices } from "../membership/membership.services";
 import { MembershipPlan } from "../membershipPlan/membershipPlan.model";
@@ -34,7 +36,33 @@ const enrollInClass = async (userId: string, classId: string) => {
     throw new AppError(httpStatus.BAD_REQUEST, "You are already enrolled in this class");
   }
 
-  // 3. Check User Membership Allowance
+  // 3. Check Member Schedule Conflict (Time Overlap with another booked class)
+  const existingUserBookings = await ClassBooking.find({
+    memberId: new mongoose.Types.ObjectId(userId),
+    status: BookingStatus.CONFIRMED,
+  }).populate("classId");
+
+  for (const b of existingUserBookings) {
+    const bookedClass = b.classId as unknown as IClassSession;
+    if (bookedClass && bookedClass.isActive) {
+      if (
+        isSameDay(bookedClass.date, classSession.date) &&
+        doTimesOverlap(
+          classSession.startTime,
+          classSession.endTime,
+          bookedClass.startTime,
+          bookedClass.endTime
+        )
+      ) {
+        throw new AppError(
+          httpStatus.BAD_REQUEST,
+          `Schedule conflict: You are already enrolled in another class ("${bookedClass.title}") scheduled from ${bookedClass.startTime} to ${bookedClass.endTime} on this date`
+        );
+      }
+    }
+  }
+
+  // 4. Check User Membership Allowance
   const membership = await MembershipServices.getMyMembership(userId);
   const plan = await MembershipPlan.findById(membership.currentPlanId);
   if (plan && membership.classesUsedThisMonth >= plan.monthlyClassLimit) {
@@ -44,7 +72,7 @@ const enrollInClass = async (userId: string, classId: string) => {
     );
   }
 
-  // 4. Create Booking & Update Usage
+  // 5. Create Booking & Update Usage
   const booking = await ClassBooking.create({
     classId: new mongoose.Types.ObjectId(classId),
     memberId: new mongoose.Types.ObjectId(userId),

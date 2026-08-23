@@ -6,6 +6,7 @@ export const addMemberZodSchema = z.object({
   email: z.string().email({ message: "Invalid email address format." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters long." }).optional(),
   phone: z.string().optional(),
+  role: z.enum(Object.values(Role) as [string, ...string[]]).optional(),
   membershipPlan: z.string().optional(),
   startDate: z.string().optional(),
   expireDate: z.string().optional(),

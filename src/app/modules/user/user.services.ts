@@ -41,6 +41,7 @@ const addMember = async (payload: {
   email: string;
   password?: string;
   phone?: string;
+  role?: Role;
   membershipPlan?: string;
   startDate?: string;
   expireDate?: string;
@@ -62,7 +63,7 @@ const addMember = async (payload: {
     email: payload.email,
     phone: payload.phone,
     password: hashedPassword,
-    role: Role.MEMBER,
+    role: payload.role || Role.MEMBER,
     isActive: payload.status || IsActive.ACTIVE,
     isVerified: true,
     joinDate: payload.startDate ? new Date(payload.startDate) : new Date(),

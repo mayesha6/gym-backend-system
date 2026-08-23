@@ -10,7 +10,7 @@ import { FileTypes, upload } from "../../config/S3Client.config";
 const router = Router();
 
 router.post(
-  "/add-member",
+  "/add-user",
   checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
   validateRequest(addMemberZodSchema),
   UserControllers.addMember

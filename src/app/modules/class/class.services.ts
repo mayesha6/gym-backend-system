@@ -1,9 +1,56 @@
 import httpStatus from "http-status-codes";
+import mongoose, { Types } from "mongoose";
 import AppError from "../../errorHelpers/AppError";
+import { doTimesOverlap, isSameDay } from "../../utils/timeUtils";
 import { IClassSession } from "./class.interface";
 import { ClassSession } from "./class.model";
 
+const checkCoachScheduleConflict = async (
+  coachId: string | Types.ObjectId,
+  date: Date | string,
+  startTime: string,
+  endTime: string,
+  excludeClassId?: string
+) => {
+  const targetDate = new Date(date);
+  const startOfDay = new Date(targetDate);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(targetDate);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const filter: any = {
+    coachId: new mongoose.Types.ObjectId(coachId),
+    isActive: true,
+    date: { $gte: startOfDay, $lte: endOfDay },
+  };
+
+  if (excludeClassId) {
+    filter._id = { $ne: new mongoose.Types.ObjectId(excludeClassId) };
+  }
+
+  const existingClasses = await ClassSession.find(filter);
+
+  for (const existing of existingClasses) {
+    if (
+      isSameDay(existing.date, date) &&
+      doTimesOverlap(startTime, endTime, existing.startTime, existing.endTime)
+    ) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        `Coach schedule conflict: Coach already has an active class ("${existing.title}") scheduled from ${existing.startTime} to ${existing.endTime} on this date`
+      );
+    }
+  }
+};
+
 const createClass = async (payload: IClassSession) => {
+  await checkCoachScheduleConflict(
+    payload.coachId,
+    payload.date,
+    payload.startTime,
+    payload.endTime
+  );
+
   const classSession = await ClassSession.create(payload);
   return classSession;
 };
@@ -44,6 +91,13 @@ const updateClass = async (id: string, payload: Partial<IClassSession>) => {
     throw new AppError(httpStatus.NOT_FOUND, "Class session not found");
   }
 
+  const coachId = payload.coachId || classSession.coachId;
+  const date = payload.date || classSession.date;
+  const startTime = payload.startTime || classSession.startTime;
+  const endTime = payload.endTime || classSession.endTime;
+
+  await checkCoachScheduleConflict(coachId, date, startTime, endTime, id);
+
   const updatedClass = await ClassSession.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
@@ -75,3 +129,4 @@ export const ClassServices = {
   updateClass,
   deleteClass,
 };
+
