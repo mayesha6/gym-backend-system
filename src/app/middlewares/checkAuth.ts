@@ -74,3 +74,34 @@ export const checkAuth = (...authRoles: string[]) => async (req: Request, res: R
         next(error)
     }
 }
+
+export const optionalAuth = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const bearerToken = req.headers.authorization?.startsWith("Bearer ")
+            ? req.headers.authorization.split(" ")[1]
+            : null;
+
+        const accessToken = req.cookies?.accessToken || bearerToken;
+
+        if (accessToken) {
+            const verifiedToken = verifyToken(accessToken, envVars.JWT_ACCESS_SECRET) as JwtPayload;
+            const isUserExist = await User.findOne({ email: verifiedToken.email });
+            if (
+                isUserExist &&
+                isUserExist.isVerified &&
+                isUserExist.isActive === IsActive.ACTIVE &&
+                !isUserExist.isDeleted
+            ) {
+                req.user = {
+                    userId: isUserExist._id,
+                    email: isUserExist.email,
+                    role: isUserExist.role,
+                    memberId: isUserExist.memberId,
+                };
+            }
+        }
+    } catch (error) {
+        // Token verification failed; proceed unauthenticated
+    }
+    next();
+};

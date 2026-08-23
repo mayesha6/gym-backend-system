@@ -16,9 +16,11 @@ const createClass = catchAsync(async (req: Request, res: Response) => {
 
 const getWeeklySchedule = catchAsync(async (req: Request, res: Response) => {
   const { startDate, endDate } = req.query;
+  const userId = (req.user as any)?.userId ? String((req.user as any).userId) : undefined;
   const result = await ClassServices.getWeeklySchedule(
     startDate as string,
-    endDate as string
+    endDate as string,
+    userId
   );
   sendResponse(res, {
     success: true,
@@ -30,7 +32,8 @@ const getWeeklySchedule = catchAsync(async (req: Request, res: Response) => {
 
 const getSingleClass = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await ClassServices.getSingleClass(id);
+  const userId = (req.user as any)?.userId ? String((req.user as any).userId) : undefined;
+  const result = await ClassServices.getSingleClass(id, userId);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,

@@ -2,6 +2,8 @@ import httpStatus from "http-status-codes";
 import mongoose, { Types } from "mongoose";
 import AppError from "../../errorHelpers/AppError";
 import { doTimesOverlap, isSameDay } from "../../utils/timeUtils";
+import { BookingStatus } from "../booking/booking.interface";
+import { ClassBooking } from "../booking/booking.model";
 import { IClassSession } from "./class.interface";
 import { ClassSession } from "./class.model";
 
@@ -55,7 +57,7 @@ const createClass = async (payload: IClassSession) => {
   return classSession;
 };
 
-const getWeeklySchedule = async (startDate?: string, endDate?: string) => {
+const getWeeklySchedule = async (startDate?: string, endDate?: string, userId?: string) => {
   const filter: any = { isActive: true };
 
   if (startDate && endDate) {
@@ -70,10 +72,69 @@ const getWeeklySchedule = async (startDate?: string, endDate?: string) => {
     .populate("coachId", "name email picture phone")
     .sort({ date: 1, startTime: 1 });
 
-  return classes;
+  const classIds = classes.map((c) => c._id);
+
+  let userBookedClassIds = new Set<string>();
+  if (userId) {
+    const userBookings = await ClassBooking.find({
+      memberId: new mongoose.Types.ObjectId(userId),
+      classId: { $in: classIds },
+      status: BookingStatus.CONFIRMED,
+    }).select("classId");
+
+    userBookedClassIds = new Set(userBookings.map((b) => b.classId.toString()));
+  }
+
+  const bookingCounts = await ClassBooking.aggregate([
+    {
+      $match: {
+        classId: { $in: classIds },
+        status: BookingStatus.CONFIRMED,
+      },
+    },
+    {
+      $group: {
+        _id: "$classId",
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const bookingCountMap = new Map<string, number>();
+  bookingCounts.forEach((b) => {
+    bookingCountMap.set(b._id.toString(), b.count);
+  });
+
+  const now = new Date();
+
+  const formattedClasses = classes.map((cls) => {
+    const clsObj = cls.toObject();
+    const enrolledCount = bookingCountMap.get(cls._id.toString()) || 0;
+    const remainingSeats = Math.max(0, cls.maxCapacity - enrolledCount);
+    const isEnrolled = userBookedClassIds.has(cls._id.toString());
+
+    let status = "AVAILABLE";
+    if (isEnrolled) {
+      status = "ENROLLED";
+    } else if (new Date(cls.date) < now) {
+      status = "MISSED";
+    } else if (remainingSeats === 0) {
+      status = "FULL";
+    }
+
+    return {
+      ...clsObj,
+      enrolledCount,
+      remainingSeats,
+      isEnrolled,
+      status,
+    };
+  });
+
+  return formattedClasses;
 };
 
-const getSingleClass = async (id: string) => {
+const getSingleClass = async (id: string, userId?: string) => {
   const classSession = await ClassSession.findById(id)
     .populate("categoryId")
     .populate("coachId", "name email picture phone");
@@ -82,7 +143,40 @@ const getSingleClass = async (id: string) => {
     throw new AppError(httpStatus.NOT_FOUND, "Class session not found");
   }
 
-  return classSession;
+  const enrolledCount = await ClassBooking.countDocuments({
+    classId: new mongoose.Types.ObjectId(id),
+    status: BookingStatus.CONFIRMED,
+  });
+
+  const remainingSeats = Math.max(0, classSession.maxCapacity - enrolledCount);
+
+  let isEnrolled = false;
+  if (userId) {
+    const userBooking = await ClassBooking.findOne({
+      classId: new mongoose.Types.ObjectId(id),
+      memberId: new mongoose.Types.ObjectId(userId),
+      status: BookingStatus.CONFIRMED,
+    });
+    isEnrolled = !!userBooking;
+  }
+
+  const now = new Date();
+  let status = "AVAILABLE";
+  if (isEnrolled) {
+    status = "ENROLLED";
+  } else if (new Date(classSession.date) < now) {
+    status = "MISSED";
+  } else if (remainingSeats === 0) {
+    status = "FULL";
+  }
+
+  return {
+    ...classSession.toObject(),
+    enrolledCount,
+    remainingSeats,
+    isEnrolled,
+    status,
+  };
 };
 
 const updateClass = async (id: string, payload: Partial<IClassSession>) => {

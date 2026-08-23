@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { checkAuth } from "../../middlewares/checkAuth";
+import { checkAuth, optionalAuth } from "../../middlewares/checkAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
 import { Role } from "../user/user.interface";
 import { ClassControllers } from "./class.controller";
@@ -14,9 +14,9 @@ router.post(
   ClassControllers.createClass
 );
 
-router.get("/schedule", ClassControllers.getWeeklySchedule);
+router.get("/schedule", optionalAuth, ClassControllers.getWeeklySchedule);
 
-router.get("/:id", ClassControllers.getSingleClass);
+router.get("/:id", optionalAuth, ClassControllers.getSingleClass);
 
 router.patch(
   "/:id",
