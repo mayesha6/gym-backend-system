@@ -1124,6 +1124,28 @@
 					}
 				},
 				{
+					"name": "Regenerate Today's QR Code (Admin Only)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/qr-code/regenerate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"qr-code",
+								"regenerate"
+							]
+						}
+					}
+				},
+				{
 					"name": "Mark Attendance via Scanned QR (Member / Coach)",
 					"request": {
 						"method": "POST",

@@ -55,6 +55,16 @@ const getOrGenerateTodayQR = async (): Promise<IDailyQRCode> => {
 };
 
 /**
+ * Force regenerate today's active QR code token & data URL.
+ * Deletes existing QR code for today and generates a brand new token with updated FRONTEND_URL.
+ */
+const regenerateTodayQR = async (): Promise<IDailyQRCode> => {
+  const todayStr = dayjs().format("YYYY-MM-DD");
+  await DailyQRCode.deleteOne({ date: todayStr });
+  return getOrGenerateTodayQR();
+};
+
+/**
  * Validate scanned token against today's valid token.
  */
 const validateDailyToken = async (token: string): Promise<boolean> => {
@@ -75,5 +85,6 @@ const validateDailyToken = async (token: string): Promise<boolean> => {
 
 export const QRCodeServices = {
   getOrGenerateTodayQR,
+  regenerateTodayQR,
   validateDailyToken,
 };

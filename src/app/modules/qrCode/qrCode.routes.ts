@@ -12,4 +12,11 @@ router.get(
   QRCodeControllers.getTodayQRCode
 );
 
+// Admin can force-regenerate a brand new QR code for today
+router.post(
+  "/regenerate",
+  checkAuth(Role.SUPER_ADMIN, Role.ADMIN),
+  QRCodeControllers.regenerateTodayQRCode
+);
+
 export const QRCodeRoutes = router;
