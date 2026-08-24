@@ -9,6 +9,8 @@ import { ClassRoutes } from "../modules/class/class.routes";
 import { BookingRoutes } from "../modules/booking/booking.routes";
 import { DashboardRoutes } from "../modules/dashboard/dashboard.routes";
 import { SettingRoutes } from "../modules/setting/setting.routes";
+import { AttendanceRoutes } from "../modules/attendance/attendance.routes";
+import { QRCodeRoutes } from "../modules/qrCode/qrCode.routes";
 
 export const router = Router();
 
@@ -52,6 +54,14 @@ const moduleRoutes = [
   {
     path: "/setting",
     route: SettingRoutes,
+  },
+  {
+    path: "/attendance",
+    route: AttendanceRoutes,
+  },
+  {
+    path: "/qr-code",
+    route: QRCodeRoutes,
   },
 ];
 

@@ -36,18 +36,34 @@ const createUser = async (payload: Partial<IUser>) => {
   return user;
 };
 
-const addMember = async (payload: {
-  name: string;
-  email: string;
-  password?: string;
-  phone?: string;
-  role?: Role;
-  membershipPlan?: string;
-  startDate?: string;
-  expireDate?: string;
-  status?: IsActive;
-  emergencyContact?: any;
-}) => {
+const addMember = async (
+  payload: {
+    name: string;
+    email: string;
+    password?: string;
+    phone?: string;
+    role?: Role;
+    membershipPlan?: string;
+    startDate?: string;
+    expireDate?: string;
+    status?: IsActive;
+    emergencyContact?: any;
+  },
+  creatorRole?: Role
+) => {
+  const targetRole = payload.role || Role.MEMBER;
+
+  // Permission check: Only SUPER_ADMIN can create ADMIN or SUPER_ADMIN accounts.
+  if (
+    (targetRole === Role.ADMIN || targetRole === Role.SUPER_ADMIN) &&
+    creatorRole !== Role.SUPER_ADMIN
+  ) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Only Super Admin can create Admin or Super Admin accounts."
+    );
+  }
+
   const isUserExist = await User.findOne({ email: payload.email });
   if (isUserExist) {
     throw new AppError(httpStatus.BAD_REQUEST, "User with this email already exists");
@@ -63,7 +79,7 @@ const addMember = async (payload: {
     email: payload.email,
     phone: payload.phone,
     password: hashedPassword,
-    role: payload.role || Role.MEMBER,
+    role: targetRole,
     isActive: payload.status || IsActive.ACTIVE,
     isVerified: true,
     joinDate: payload.startDate ? new Date(payload.startDate) : new Date(),

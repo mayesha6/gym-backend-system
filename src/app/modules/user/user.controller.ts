@@ -18,7 +18,8 @@ const createUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 const addMember = catchAsync(async (req: Request, res: Response) => {
-  const result = await UserServices.addMember(req.body);
+  const creator = req.user as JwtPayload;
+  const result = await UserServices.addMember(req.body, creator?.role as Role);
 
   sendResponse(res, {
     success: true,

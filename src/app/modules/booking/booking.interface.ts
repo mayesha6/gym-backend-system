@@ -3,6 +3,8 @@ import { Types } from "mongoose";
 export enum BookingStatus {
   CONFIRMED = "CONFIRMED",
   CANCELLED = "CANCELLED",
+  ATTENDED = "ATTENDED",
+  MISSED = "MISSED",
 }
 
 export interface IClassBooking {
