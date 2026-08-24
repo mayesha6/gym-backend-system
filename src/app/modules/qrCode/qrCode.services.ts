@@ -24,11 +24,10 @@ const getOrGenerateTodayQR = async (): Promise<IDailyQRCode> => {
     const baseUrl = envVars.FRONTEND_URL || envVars.FRONTEND_DOMAIN_URL || "http://localhost:3000";
     const checkInUrl = `${baseUrl}/attendance/check-in?token=${token}`;
 
-    // Generate Base64 Data URL for display on Admin Dashboard screen
+    // Generate Base64 Data URL with compact dimensions (Lightweight & HD)
     const qrDataUrl = await QRCode.toDataURL(checkInUrl, {
-      errorCorrectionLevel: "H",
-      width: 400,
-      margin: 2,
+      width: 150,
+      margin: 1,
     });
 
     // Expiry set to 12:00 AM midnight of next day
@@ -41,6 +40,15 @@ const getOrGenerateTodayQR = async (): Promise<IDailyQRCode> => {
       qrDataUrl,
       expiresAt,
     });
+  }
+
+  // Optimize existing dailyQR data URL if oversized (> 2000 chars)
+  if (dailyQR && dailyQR.qrDataUrl && dailyQR.qrDataUrl.length > 2000) {
+    dailyQR.qrDataUrl = await QRCode.toDataURL(dailyQR.checkInUrl, {
+      width: 150,
+      margin: 1,
+    });
+    await dailyQR.save();
   }
 
   return dailyQR;
