@@ -1,6 +1,6 @@
 import httpStatus from "http-status-codes";
 import AppError from "../../errorHelpers/AppError";
-import { doTimesOverlap, isSameDay } from "../../utils/timeUtils";
+import { doTimesOverlap, getClassDateTime, isSameDay } from "../../utils/timeUtils";
 import { IClassSession } from "../class/class.interface";
 import { ClassSession } from "../class/class.model";
 import { MembershipServices } from "../membership/membership.services";
@@ -15,7 +15,16 @@ const enrollInClass = async (userId: string, classId: string) => {
     throw new AppError(httpStatus.NOT_FOUND, "Class session not found or inactive");
   }
 
-  // 1. Check Capacity
+  // 1. Check Class End Time (Cannot enroll after class end time)
+  const endDateTime = getClassDateTime(classSession.date, classSession.endTime);
+  if (new Date() > endDateTime) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Class has already finished. You cannot enroll in a past class."
+    );
+  }
+
+  // 2. Check Capacity
   const confirmedCount = await ClassBooking.countDocuments({
     classId: new mongoose.Types.ObjectId(classId),
     status: BookingStatus.CONFIRMED,

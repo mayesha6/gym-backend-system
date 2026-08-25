@@ -49,3 +49,17 @@ export const doTimesOverlap = (
 
   return s1 < e2 && e1 > s2;
 };
+
+/**
+ * Combines a Date object or date string with a time string (e.g. "10:00 AM") into a full Date object.
+ */
+export const getClassDateTime = (date: Date | string, timeStr: string): Date => {
+  const d = new Date(date);
+  const minutes = timeToMinutes(timeStr);
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+
+  const result = new Date(d);
+  result.setHours(hours, mins, 0, 0);
+  return result;
+};

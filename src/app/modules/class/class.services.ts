@@ -1,7 +1,7 @@
 import httpStatus from "http-status-codes";
 import mongoose, { Types } from "mongoose";
 import AppError from "../../errorHelpers/AppError";
-import { doTimesOverlap, isSameDay } from "../../utils/timeUtils";
+import { doTimesOverlap, getClassDateTime, isSameDay } from "../../utils/timeUtils";
 import { BookingStatus } from "../booking/booking.interface";
 import { ClassBooking } from "../booking/booking.model";
 import { IClassSession } from "./class.interface";
@@ -113,13 +113,18 @@ const getWeeklySchedule = async (startDate?: string, endDate?: string, userId?: 
     const remainingSeats = Math.max(0, cls.maxCapacity - enrolledCount);
     const isEnrolled = userBookedClassIds.has(cls._id.toString());
 
+    const startDateTime = getClassDateTime(cls.date, cls.startTime);
+    const endDateTime = getClassDateTime(cls.date, cls.endTime);
+
     let status = "AVAILABLE";
     if (isEnrolled) {
       status = "ENROLLED";
-    } else if (new Date(cls.date) < now) {
-      status = "MISSED";
+    } else if (now > endDateTime) {
+      status = "FINISHED";
     } else if (remainingSeats === 0) {
       status = "FULL";
+    } else if (now >= startDateTime && now <= endDateTime) {
+      status = "ONGOING";
     }
 
     return {
@@ -161,13 +166,18 @@ const getSingleClass = async (id: string, userId?: string) => {
   }
 
   const now = new Date();
+  const startDateTime = getClassDateTime(classSession.date, classSession.startTime);
+  const endDateTime = getClassDateTime(classSession.date, classSession.endTime);
+
   let status = "AVAILABLE";
   if (isEnrolled) {
     status = "ENROLLED";
-  } else if (new Date(classSession.date) < now) {
-    status = "MISSED";
+  } else if (now > endDateTime) {
+    status = "FINISHED";
   } else if (remainingSeats === 0) {
     status = "FULL";
+  } else if (now >= startDateTime && now <= endDateTime) {
+    status = "ONGOING";
   }
 
   return {
