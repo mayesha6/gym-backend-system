@@ -6,6 +6,7 @@ import { BookingStatus } from "../booking/booking.interface";
 import { ClassBooking } from "../booking/booking.model";
 import { MembershipStatus } from "../membership/membership.interface";
 import { UserMembership } from "../membership/membership.model";
+import { MembershipServices } from "../membership/membership.services";
 import { MembershipPlan } from "../membershipPlan/membershipPlan.model";
 import { QRCodeServices } from "../qrCode/qrCode.services";
 import { Role } from "../user/user.interface";
@@ -53,15 +54,34 @@ const markAttendanceViaQR = async (
   // 3. Role Specific Logic
   if (userRole === Role.MEMBER) {
     // Check Member Active Subscription & Remaining Class Credits
-    const userMembership = await UserMembership.findOne({
+    let userMembership = await UserMembership.findOne({
       userId: userObjectId,
-      status: MembershipStatus.ACTIVE,
+      status: { $in: [MembershipStatus.ACTIVE, MembershipStatus.PENDING_CHANGE] },
     }).populate("currentPlanId");
 
     if (!userMembership) {
+      try {
+        userMembership = await MembershipServices.getMyMembership(userId);
+      } catch (err) {
+        // Fallback silently if initialization fails
+      }
+    }
+
+    if (
+      !userMembership ||
+      (userMembership.status !== MembershipStatus.ACTIVE &&
+        userMembership.status !== MembershipStatus.PENDING_CHANGE)
+    ) {
       throw new AppError(
         httpStatus.FORBIDDEN,
         "You do not have an active membership plan to check-in."
+      );
+    }
+
+    if (userMembership.expiryDate && new Date(userMembership.expiryDate) < new Date()) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "Your membership plan has expired. Please renew your membership to check-in."
       );
     }
 
