@@ -142,18 +142,26 @@ const getCheckoutUrl = async (userId: string, planId?: string) => {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  const baseUrl = "https://palestra.gymdesk.com/signup";
+  let baseUrl = "https://palestra.gymdesk.com/signup";
+  let plan: any = null;
+
+  if (planId) {
+    plan = await MembershipPlan.findById(planId);
+    if (plan && plan.gymdeskPlanId) {
+      if (plan.gymdeskPlanId.startsWith("http://") || plan.gymdeskPlanId.startsWith("https://")) {
+        baseUrl = plan.gymdeskPlanId;
+      }
+    }
+  }
+
   const url = new URL(baseUrl);
 
   // Pre-fill parameters
   if (user.email) url.searchParams.append("email", user.email);
   if (user.name) url.searchParams.append("name", user.name);
 
-  if (planId) {
-    const plan = await MembershipPlan.findById(planId);
-    if (plan && plan.gymdeskPlanId) {
-      url.searchParams.append("plan", plan.gymdeskPlanId);
-    }
+  if (plan && plan.gymdeskPlanId && !plan.gymdeskPlanId.startsWith("http")) {
+    url.searchParams.append("plan", plan.gymdeskPlanId);
   }
 
   return {
