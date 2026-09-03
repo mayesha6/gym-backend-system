@@ -70,9 +70,26 @@ const deleteClass = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMyClasses = catchAsync(async (req: Request, res: Response) => {
+  const { startDate, endDate } = req.query;
+  const coachId = String((req.user as any)?.userId);
+  const result = await ClassServices.getMyClasses(
+    coachId,
+    startDate as string,
+    endDate as string
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Coach class schedule fetched successfully",
+    data: result,
+  });
+});
+
 export const ClassControllers = {
   createClass,
   getWeeklySchedule,
+  getMyClasses,
   getSingleClass,
   updateClass,
   deleteClass,

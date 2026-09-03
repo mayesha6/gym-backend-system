@@ -57,7 +57,12 @@ const createClass = async (payload: IClassSession) => {
   return classSession;
 };
 
-const getWeeklySchedule = async (startDate?: string, endDate?: string, userId?: string) => {
+const getWeeklySchedule = async (
+  startDate?: string,
+  endDate?: string,
+  userId?: string,
+  coachIdFilter?: string
+) => {
   const filter: any = { isActive: true };
 
   if (startDate && endDate) {
@@ -65,6 +70,10 @@ const getWeeklySchedule = async (startDate?: string, endDate?: string, userId?: 
       $gte: new Date(startDate),
       $lte: new Date(endDate),
     };
+  }
+
+  if (coachIdFilter) {
+    filter.coachId = new mongoose.Types.ObjectId(coachIdFilter);
   }
 
   const classes = await ClassSession.find(filter)
@@ -226,9 +235,14 @@ const deleteClass = async (id: string) => {
   return classSession;
 };
 
+const getMyClasses = async (coachId: string, startDate?: string, endDate?: string) => {
+  return await getWeeklySchedule(startDate, endDate, coachId, coachId);
+};
+
 export const ClassServices = {
   createClass,
   getWeeklySchedule,
+  getMyClasses,
   getSingleClass,
   updateClass,
   deleteClass,

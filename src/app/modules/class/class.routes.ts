@@ -16,6 +16,12 @@ router.post(
 
 router.get("/schedule", optionalAuth, ClassControllers.getWeeklySchedule);
 
+router.get(
+  "/my-classes",
+  checkAuth(Role.COACH, Role.ADMIN, Role.SUPER_ADMIN),
+  ClassControllers.getMyClasses
+);
+
 router.get("/:id", optionalAuth, ClassControllers.getSingleClass);
 
 router.patch(
