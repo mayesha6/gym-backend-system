@@ -15,6 +15,14 @@ export enum IsActive {
   BLOCKED = "BLOCKED"
 }
 
+export enum SubscriptionStatus {
+  INACTIVE = "INACTIVE",
+  PENDING = "PENDING",
+  ACTIVE = "ACTIVE",
+  CANCELED = "CANCELED",
+  EXPIRED = "EXPIRED"
+}
+
 export interface IAuthProvider {
   provider: "google" | "credentials";
   providerId: string;
@@ -43,8 +51,12 @@ export interface IUser {
   emergencyContact?: IEmergencyContact;
   auths?: IAuthProvider[];
 
-  // Membership Relation
+  // Membership & Gymdesk Relation
   currentPlan?: Types.ObjectId;
+  gymdeskMemberId?: string;
+  subscriptionStatus?: SubscriptionStatus;
+  subscriptionStartDate?: Date;
+  subscriptionEndDate?: Date;
 
   createdAt?: Date;
   updatedAt?: Date;

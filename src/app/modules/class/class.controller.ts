@@ -4,7 +4,13 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { ClassServices } from "./class.services";
 
+import { Role } from "../user/user.interface";
+
 const createClass = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as any;
+  if (user && user.role === Role.COACH && !req.body.coachId) {
+    req.body.coachId = user.userId;
+  }
   const result = await ClassServices.createClass(req.body);
   sendResponse(res, {
     success: true,

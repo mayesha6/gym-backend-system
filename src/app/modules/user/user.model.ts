@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { IAuthProvider, IEmergencyContact, IsActive, IUser, Role } from "./user.interface";
+import { IAuthProvider, IEmergencyContact, IsActive, IUser, Role, SubscriptionStatus } from "./user.interface";
 
 const authProviderSchema = new Schema<IAuthProvider>({
     provider: { type: String, required: true },
@@ -41,7 +41,15 @@ const userSchema = new Schema<IUser>({
     joinDate: { type: Date, default: Date.now },
     emergencyContact: emergencyContactSchema,
     auths: [authProviderSchema],
-    currentPlan: { type: Schema.Types.ObjectId, ref: "MembershipPlan", default: null }
+    currentPlan: { type: Schema.Types.ObjectId, ref: "MembershipPlan", default: null },
+    gymdeskMemberId: { type: String },
+    subscriptionStatus: {
+        type: String,
+        enum: Object.values(SubscriptionStatus),
+        default: SubscriptionStatus.INACTIVE
+    },
+    subscriptionStartDate: { type: Date },
+    subscriptionEndDate: { type: Date }
 }, {
     timestamps: true,
     versionKey: false

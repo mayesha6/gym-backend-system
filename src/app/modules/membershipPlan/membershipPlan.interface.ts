@@ -15,6 +15,7 @@ export interface IMembershipPlan {
   features: string[]; // Group Classes, Private Classes, etc.
   rules?: string[]; // Class allowance resets, booked 2 hours in advance, etc.
   whatsIncluded?: IWhatsIncluded[];
+  gymdeskPlanId?: string;
   isActive?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
