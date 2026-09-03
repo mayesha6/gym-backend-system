@@ -18,11 +18,11 @@ const handleWebhook = catchAsync(async (req: Request, res: Response) => {
 
 const getCheckoutUrl = catchAsync(async (req: Request, res: Response) => {
   const userId = (req.user as any)?.userId;
-  const { planId } = req.query;
+  const planId = (req.params.planId || req.query.planId) as string | undefined;
 
   const result = await GymdeskServices.getCheckoutUrl(
     userId,
-    planId as string | undefined
+    planId
   );
 
   sendResponse(res, {
