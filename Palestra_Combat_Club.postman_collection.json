@@ -1226,6 +1226,116 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "11. Stripe Payment & Recurring Subscriptions",
+			"item": [
+				{
+					"name": "Create Recurring Subscription Checkout Session",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"planId\": \"MEMBERSHIP_PLAN_ID_HERE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payment/checkout-session",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payment",
+								"checkout-session"
+							]
+						}
+					}
+				},
+				{
+					"name": "Verify Stripe Checkout Session & Activate Membership",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/payment/verify-session?session_id=CHECKOUT_SESSION_ID_HERE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payment",
+								"verify-session"
+							],
+							"query": [
+								{
+									"key": "session_id",
+									"value": "CHECKOUT_SESSION_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Cancel Active Recurring Subscription",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/payment/cancel-subscription",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payment",
+								"cancel-subscription"
+							]
+						}
+					}
+				},
+				{
+					"name": "Stripe Webhook Event (System / Stripe)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "stripe-signature",
+								"value": "t=12345,v1=signature_hash_here"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"evt_test_webhook\",\n  \"type\": \"checkout.session.completed\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payment/webhook",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payment",
+								"webhook"
+							]
+						}
+					}
+				}
+			]
 		}
 	]
 }

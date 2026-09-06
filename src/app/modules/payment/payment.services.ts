@@ -24,8 +24,19 @@ const createSubscriptionCheckoutSession = async (userId: string, planId: string)
     throw new AppError(httpStatus.NOT_FOUND, "Membership plan not found or inactive");
   }
 
-  // 1. Ensure Stripe Customer exists
+  // 1. Ensure Stripe Customer exists on current Stripe Account
   let customerId = user.stripeCustomerId;
+  if (customerId) {
+    try {
+      const existingCustomer = await stripe.customers.retrieve(customerId);
+      if ((existingCustomer as any).deleted) {
+        customerId = undefined;
+      }
+    } catch (err: any) {
+      customerId = undefined;
+    }
+  }
+
   if (!customerId) {
     const customer = await stripe.customers.create({
       email: user.email,
@@ -39,8 +50,19 @@ const createSubscriptionCheckoutSession = async (userId: string, planId: string)
     await user.save();
   }
 
-  // 2. Ensure Stripe Product and Recurring Price exist for the Plan
+  // 2. Ensure Stripe Product and Recurring Price exist on current Stripe Account
   let priceId = plan.stripePriceId;
+  if (priceId) {
+    try {
+      const existingPrice = await stripe.prices.retrieve(priceId);
+      if (!existingPrice.active) {
+        priceId = undefined;
+      }
+    } catch (err: any) {
+      priceId = undefined;
+    }
+  }
+
   if (!priceId) {
     const product = await stripe.products.create({
       name: `Palestra Membership - ${plan.title}`,
@@ -96,6 +118,67 @@ const createSubscriptionCheckoutSession = async (userId: string, planId: string)
   };
 };
 
+const activateUserMembershipFromSession = async (session: Stripe.Checkout.Session) => {
+  const userId = session.metadata?.userId;
+  const planId = session.metadata?.planId;
+
+  if (!userId || !planId) return null;
+
+  const user = await User.findById(userId);
+  const plan = await MembershipPlan.findById(planId);
+
+  if (!user || !plan) return null;
+
+  const startDate = new Date();
+  const endDate = new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+  user.stripeCustomerId = session.customer as string;
+  user.stripeSubscriptionId = session.subscription as string;
+  user.subscriptionStatus = SubscriptionStatus.ACTIVE;
+  user.subscriptionStartDate = startDate;
+  user.subscriptionEndDate = endDate;
+  user.currentPlan = plan._id as mongoose.Types.ObjectId;
+  await user.save();
+
+  let userMembership = await UserMembership.findOne({ userId: user._id });
+  if (userMembership) {
+    userMembership.currentPlanId = plan._id as mongoose.Types.ObjectId;
+    userMembership.status = MembershipStatus.ACTIVE;
+    userMembership.startDate = startDate;
+    userMembership.expiryDate = endDate;
+    userMembership.classesUsedThisMonth = 0;
+    userMembership.lastAllowanceResetDate = startDate;
+    userMembership.pendingPlanId = null;
+    userMembership.noticeRequestedDate = null;
+    userMembership.pendingEffectiveDate = null;
+    await userMembership.save();
+  } else {
+    userMembership = await UserMembership.create({
+      userId: user._id,
+      currentPlanId: plan._id,
+      status: MembershipStatus.ACTIVE,
+      startDate,
+      expiryDate: endDate,
+      classesUsedThisMonth: 0,
+      lastAllowanceResetDate: startDate,
+    });
+  }
+
+  return { user, userMembership };
+};
+
+const verifySession = async (sessionId: string) => {
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  if (session.payment_status === "paid" || session.status === "complete") {
+    const result = await activateUserMembershipFromSession(session);
+    if (result) {
+      return result;
+    }
+  }
+
+  throw new AppError(httpStatus.BAD_REQUEST, "Payment not completed or invalid session");
+};
+
 const handleStripeWebhook = async (rawBody: Buffer, signature: string) => {
   let event: Stripe.Event;
 
@@ -115,47 +198,7 @@ const handleStripeWebhook = async (rawBody: Buffer, signature: string) => {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
-      const userId = session.metadata?.userId;
-      const planId = session.metadata?.planId;
-
-      if (userId && planId) {
-        const user = await User.findById(userId);
-        const plan = await MembershipPlan.findById(planId);
-
-        if (user && plan) {
-          const startDate = new Date();
-          const endDate = new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000);
-
-          user.stripeCustomerId = session.customer as string;
-          user.stripeSubscriptionId = session.subscription as string;
-          user.subscriptionStatus = SubscriptionStatus.ACTIVE;
-          user.subscriptionStartDate = startDate;
-          user.subscriptionEndDate = endDate;
-          user.currentPlan = plan._id as mongoose.Types.ObjectId;
-          await user.save();
-
-          let userMembership = await UserMembership.findOne({ userId: user._id });
-          if (userMembership) {
-            userMembership.currentPlanId = plan._id as mongoose.Types.ObjectId;
-            userMembership.status = MembershipStatus.ACTIVE;
-            userMembership.startDate = startDate;
-            userMembership.expiryDate = endDate;
-            userMembership.classesUsedThisMonth = 0;
-            userMembership.lastAllowanceResetDate = startDate;
-            await userMembership.save();
-          } else {
-            await UserMembership.create({
-              userId: user._id,
-              currentPlanId: plan._id,
-              status: MembershipStatus.ACTIVE,
-              startDate,
-              expiryDate: endDate,
-              classesUsedThisMonth: 0,
-              lastAllowanceResetDate: startDate,
-            });
-          }
-        }
-      }
+      await activateUserMembershipFromSession(session);
       break;
     }
 
@@ -264,6 +307,7 @@ const cancelSubscription = async (userId: string) => {
 
 export const PaymentServices = {
   createSubscriptionCheckoutSession,
+  verifySession,
   handleStripeWebhook,
   cancelSubscription,
 };

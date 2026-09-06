@@ -18,6 +18,19 @@ const createCheckoutSession = catchAsync(async (req: Request, res: Response) => 
   });
 });
 
+const verifySession = catchAsync(async (req: Request, res: Response) => {
+  const sessionId = (req.query.session_id || req.body.sessionId) as string;
+
+  const result = await PaymentServices.verifySession(sessionId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Payment verified and membership activated successfully",
+    data: result,
+  });
+});
+
 const handleStripeWebhook = catchAsync(async (req: Request, res: Response) => {
   const signature = req.headers["stripe-signature"] as string;
   const rawBody = req.body;
@@ -42,6 +55,7 @@ const cancelSubscription = catchAsync(async (req: Request, res: Response) => {
 
 export const PaymentControllers = {
   createCheckoutSession,
+  verifySession,
   handleStripeWebhook,
   cancelSubscription,
 };

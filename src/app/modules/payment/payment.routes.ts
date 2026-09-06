@@ -12,6 +12,9 @@ router.post(
   PaymentControllers.createCheckoutSession
 );
 
+// Public/Protected route to verify Stripe checkout session after redirect to successUrl
+router.get("/verify-session", PaymentControllers.verifySession);
+
 // Protected route to cancel recurring subscription
 router.post(
   "/cancel-subscription",
@@ -20,3 +23,12 @@ router.post(
 );
 
 export const PaymentRoutes = router;
+
+
+
+
+// sudo certbot delete --cert-name 206.162.244.175.sslip.io
+
+// # ২. Nginx কনফিগ মুছে রিলোড দেওয়া
+// sudo rm /etc/nginx/sites-enabled/temp-ssl /etc/nginx/sites-available/temp-ssl
+// sudo systemctl reload nginx
