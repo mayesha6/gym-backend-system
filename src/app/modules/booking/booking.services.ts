@@ -5,11 +5,25 @@ import { IClassSession } from "../class/class.interface";
 import { ClassSession } from "../class/class.model";
 import { MembershipServices } from "../membership/membership.services";
 import { MembershipPlan } from "../membershipPlan/membershipPlan.model";
+import { Role } from "../user/user.interface";
+import { User } from "../user/user.model";
 import { BookingStatus } from "./booking.interface";
 import { ClassBooking } from "./booking.model";
 import mongoose from "mongoose";
 
 const enrollInClass = async (userId: string, classId: string) => {
+  const user = await User.findById(userId);
+  if (!user || user.isDeleted) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  if (user.role !== Role.MEMBER && user.role !== Role.USER) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Only members can enroll in classes"
+    );
+  }
+
   const classSession = await ClassSession.findById(classId);
   if (!classSession || !classSession.isActive) {
     throw new AppError(httpStatus.NOT_FOUND, "Class session not found or inactive");
@@ -100,6 +114,18 @@ const enrollInClass = async (userId: string, classId: string) => {
 };
 
 const unenrollFromClass = async (userId: string, classId: string) => {
+  const user = await User.findById(userId);
+  if (!user || user.isDeleted) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  if (user.role !== Role.MEMBER && user.role !== Role.USER) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Only members can unenroll from classes"
+    );
+  }
+
   const booking = await ClassBooking.findOne({
     classId: new mongoose.Types.ObjectId(classId),
     memberId: new mongoose.Types.ObjectId(userId),
