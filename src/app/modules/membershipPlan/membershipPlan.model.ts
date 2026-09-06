@@ -19,7 +19,8 @@ const membershipPlanSchema = new Schema<IMembershipPlan>(
     features: [{ type: String }],
     rules: [{ type: String }],
     whatsIncluded: [whatsIncludedSchema],
-    gymdeskPlanId: { type: String },
+    stripePriceId: { type: String },
+    stripeProductId: { type: String },
     isActive: { type: Boolean, default: true },
   },
   {

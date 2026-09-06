@@ -7,8 +7,3 @@ export const updateGymInfoZodSchema = z.object({
   phone: z.string().optional(),
   email: z.string().email().optional(),
 });
-
-export const updateGymdeskConfigZodSchema = z.object({
-  gymdeskApiKey: z.string().min(1, { message: "API key is required" }),
-  gymdeskSyncFrequency: z.string().optional(),
-});

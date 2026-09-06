@@ -11,7 +11,7 @@ import { DashboardRoutes } from "../modules/dashboard/dashboard.routes";
 import { SettingRoutes } from "../modules/setting/setting.routes";
 import { AttendanceRoutes } from "../modules/attendance/attendance.routes";
 import { QRCodeRoutes } from "../modules/qrCode/qrCode.routes";
-import { GymdeskRoutes } from "../modules/gymdesk/gymdesk.routes";
+import { PaymentRoutes } from "../modules/payment/payment.routes";
 
 export const router = Router();
 
@@ -65,8 +65,8 @@ const moduleRoutes = [
     route: QRCodeRoutes,
   },
   {
-    path: "/gymdesk",
-    route: GymdeskRoutes,
+    path: "/payment",
+    route: PaymentRoutes,
   },
 ];
 

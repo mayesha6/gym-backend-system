@@ -28,30 +28,7 @@ const updateGymInfo = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const updateGymdeskConfig = catchAsync(async (req: Request, res: Response) => {
-  const { gymdeskApiKey, gymdeskSyncFrequency } = req.body;
-  const result = await SettingServices.updateGymdeskConfig(gymdeskApiKey, gymdeskSyncFrequency);
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: "Gymdesk configuration updated successfully",
-    data: result,
-  });
-});
-
-const triggerGymdeskSync = catchAsync(async (req: Request, res: Response) => {
-  const result = await SettingServices.triggerGymdeskSync();
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: "Gymdesk sync executed successfully",
-    data: result,
-  });
-});
-
 export const SettingControllers = {
   getGymInfo,
   updateGymInfo,
-  updateGymdeskConfig,
-  triggerGymdeskSync,
 };

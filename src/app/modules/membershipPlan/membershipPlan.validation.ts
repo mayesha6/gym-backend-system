@@ -14,7 +14,8 @@ export const createMembershipPlanZodSchema = z.object({
   features: z.array(z.string()).optional(),
   rules: z.array(z.string()).optional(),
   whatsIncluded: z.array(whatsIncludedZodSchema).optional(),
-  gymdeskPlanId: z.string().optional(),
+  stripePriceId: z.string().optional(),
+  stripeProductId: z.string().optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -27,6 +28,7 @@ export const updateMembershipPlanZodSchema = z.object({
   features: z.array(z.string()).optional(),
   rules: z.array(z.string()).optional(),
   whatsIncluded: z.array(whatsIncludedZodSchema).optional(),
-  gymdeskPlanId: z.string().optional(),
+  stripePriceId: z.string().optional(),
+  stripeProductId: z.string().optional(),
   isActive: z.boolean().optional(),
 });

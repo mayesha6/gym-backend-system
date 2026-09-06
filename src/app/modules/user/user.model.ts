@@ -42,7 +42,8 @@ const userSchema = new Schema<IUser>({
     emergencyContact: emergencyContactSchema,
     auths: [authProviderSchema],
     currentPlan: { type: Schema.Types.ObjectId, ref: "MembershipPlan", default: null },
-    gymdeskMemberId: { type: String },
+    stripeCustomerId: { type: String },
+    stripeSubscriptionId: { type: String },
     subscriptionStatus: {
         type: String,
         enum: Object.values(SubscriptionStatus),

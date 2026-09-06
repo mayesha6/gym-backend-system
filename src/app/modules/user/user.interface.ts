@@ -51,9 +51,10 @@ export interface IUser {
   emergencyContact?: IEmergencyContact;
   auths?: IAuthProvider[];
 
-  // Membership & Gymdesk Relation
+  // Membership & Stripe Relation
   currentPlan?: Types.ObjectId;
-  gymdeskMemberId?: string;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
   subscriptionStatus?: SubscriptionStatus;
   subscriptionStartDate?: Date;
   subscriptionEndDate?: Date;

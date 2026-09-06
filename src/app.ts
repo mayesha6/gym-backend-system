@@ -9,6 +9,8 @@ import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
 import notFound from "./app/middlewares/notFound";
 import { router } from "./app/routes";
 
+import { PaymentControllers } from "./app/modules/payment/payment.controller";
+
 const app = express()
 
 app.use(expressSession({
@@ -19,6 +21,14 @@ app.use(expressSession({
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(cookieParser())
+
+// Stripe Webhook MUST receive raw Buffer before express.json() parses body
+app.post(
+  "/api/v1/payment/webhook",
+  express.raw({ type: "application/json" }),
+  PaymentControllers.handleStripeWebhook
+);
+
 app.use(express.json())
 app.set("trust proxy", 1);
 app.use(express.urlencoded({ extended: true }))

@@ -5,7 +5,7 @@ import { parseFormDataMiddleware } from "../../middlewares/parseFormDataMiddlewa
 import { FileTypes, upload } from "../../config/S3Client.config";
 import { Role } from "../user/user.interface";
 import { SettingControllers } from "./setting.controller";
-import { updateGymdeskConfigZodSchema, updateGymInfoZodSchema } from "./setting.validation";
+import { updateGymInfoZodSchema } from "./setting.validation";
 
 const router = Router();
 
@@ -24,18 +24,4 @@ router.patch(
   SettingControllers.updateGymInfo
 );
 
-router.patch(
-  "/gymdesk-config",
-  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
-  validateRequest(updateGymdeskConfigZodSchema),
-  SettingControllers.updateGymdeskConfig
-);
-
-router.post(
-  "/gymdesk-sync",
-  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
-  SettingControllers.triggerGymdeskSync
-);
-
 export const SettingRoutes = router;
-

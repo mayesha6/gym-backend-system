@@ -8,12 +8,7 @@ export interface IGymSetting {
   phone?: string;
   email?: string;
   
-  // Gymdesk Integration Fields
-  gymdeskApiKey?: string;
-  gymdeskSyncFrequency?: string;
-  gymdeskLastSyncAt?: Date;
-  gymdeskSyncStatus?: string;
-  
+
   createdAt?: Date;
   updatedAt?: Date;
 }
