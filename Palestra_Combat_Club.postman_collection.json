@@ -1102,6 +1102,28 @@
 			"name": "10. QR Code & Attendance Management",
 			"item": [
 				{
+					"name": "Get My Personal QR Code (Member / Coach)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/qr-code/my-qr",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"qr-code",
+								"my-qr"
+							]
+						}
+					}
+				},
+				{
 					"name": "Get Today's Daily QR Code (Admin Only)",
 					"request": {
 						"method": "GET",
@@ -1146,7 +1168,37 @@
 					}
 				},
 				{
-					"name": "Mark Attendance via Scanned QR (Member / Coach)",
+					"name": "Scan Member/Coach Personal QR (Reception Scanner Check-In / Check-Out)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"qrToken\": \"USER_PERSONAL_QR_TOKEN_HERE\",\n  \"bookingId\": \"OPTIONAL_CLASS_BOOKING_ID_HERE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/attendance/scan-user-qr",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"attendance",
+								"scan-user-qr"
+							]
+						}
+					}
+				},
+				{
+					"name": "Check-In / Check-Out via Scanned QR (Member / Coach)",
 					"request": {
 						"method": "POST",
 						"header": [

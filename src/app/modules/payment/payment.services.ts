@@ -84,8 +84,8 @@ const createSubscriptionCheckoutSession = async (userId: string, planId: string)
     priceId = price.id;
   }
 
-  const successUrl = `${envVars.FRONTEND_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}&payment_status=success`;
-  const cancelUrl = `${envVars.FRONTEND_URL}/membership-plans?payment_status=canceled`;
+  const successUrl = `${envVars.FRONTEND_URL}/member/payment-success`;
+  const cancelUrl = `${envVars.FRONTEND_URL}/member/payment-failed`;
 
   // 3. Create Stripe Checkout Session in subscription mode (saves card for auto-debit)
   const session = await stripe.checkout.sessions.create({
