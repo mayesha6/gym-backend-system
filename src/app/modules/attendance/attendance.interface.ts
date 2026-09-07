@@ -18,6 +18,7 @@ export interface IAttendance {
   role: Role;
   date: string; // Format: YYYY-MM-DD
   checkInTime: Date;
+  checkOutTime?: Date | null;
   status: AttendanceStatus;
   verificationType: VerificationType;
   bookingId?: Types.ObjectId | null;
@@ -27,3 +28,4 @@ export interface IAttendance {
   createdAt?: Date;
   updatedAt?: Date;
 }
+

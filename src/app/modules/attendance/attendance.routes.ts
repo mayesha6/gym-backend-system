@@ -7,7 +7,15 @@ import { AttendanceValidations } from "./attendance.validation";
 
 const router = Router();
 
-// Member and Coach can scan QR code to check-in
+// Gym Camera / Receptionist scans Member or Coach personal QR code
+router.post(
+  "/scan-user-qr",
+  checkAuth(Role.SUPER_ADMIN, Role.ADMIN),
+  validateRequest(AttendanceValidations.scanUserQRSchema),
+  AttendanceControllers.scanUserQR
+);
+
+// Member and Coach can scan QR code to check-in (legacy flow)
 router.post(
   "/check-in",
   checkAuth(Role.MEMBER, Role.COACH, Role.ADMIN, Role.SUPER_ADMIN),
@@ -30,3 +38,4 @@ router.get(
 );
 
 export const AttendanceRoutes = router;
+

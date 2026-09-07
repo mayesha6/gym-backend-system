@@ -8,6 +8,7 @@ const attendanceSchema = new Schema<IAttendance>(
     role: { type: String, enum: Object.values(Role), required: true },
     date: { type: String, required: true }, // YYYY-MM-DD
     checkInTime: { type: Date, default: Date.now },
+    checkOutTime: { type: Date, default: null },
     status: {
       type: String,
       enum: Object.values(AttendanceStatus),
@@ -29,8 +30,8 @@ const attendanceSchema = new Schema<IAttendance>(
   }
 );
 
-// Prevent duplicate attendance for the same user on the same date for general checkin/booking
-attendanceSchema.index({ userId: 1, date: 1, bookingId: 1 }, { unique: true });
+// Unique index per user per date for daily check-in / check-out tracking
+attendanceSchema.index({ userId: 1, date: 1 }, { unique: true });
 attendanceSchema.index({ date: 1, role: 1 });
 
 export const Attendance = model<IAttendance>("Attendance", attendanceSchema);

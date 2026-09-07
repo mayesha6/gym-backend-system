@@ -1,9 +1,83 @@
 import crypto from "crypto";
 import QRCode from "qrcode";
 import dayjs from "dayjs";
+import httpStatus from "http-status-codes";
 import { DailyQRCode } from "./qrCode.model";
 import { IDailyQRCode } from "./qrCode.interface";
 import { envVars } from "../../config/env";
+import { User } from "../user/user.model";
+import AppError from "../../errorHelpers/AppError";
+
+/**
+ * Generate personal QR code for a specific user (Member or Coach).
+ */
+const generateUserPersonalQR = async (userId: string) => {
+  const user = await User.findById(userId).populate("currentPlan");
+  if (!user || user.isDeleted) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const signature = crypto
+    .createHmac("sha256", envVars.JWT_ACCESS_SECRET)
+    .update(user._id.toString())
+    .digest("hex");
+
+  const qrToken = `USER_QR:${user._id.toString()}:${signature}`;
+
+  // Generate Base64 Data URL for member screen
+  const qrDataUrl = await QRCode.toDataURL(qrToken, {
+    width: 250,
+    margin: 2,
+  });
+
+  return {
+    qrToken,
+    qrDataUrl,
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      memberId: user.memberId,
+      picture: user.picture,
+      subscriptionStatus: user.subscriptionStatus,
+      currentPlan: user.currentPlan,
+    },
+  };
+};
+
+/**
+ * Verify scanned User QR Token and return user ID.
+ */
+const verifyUserQRToken = (qrToken: string): string => {
+  if (!qrToken) {
+    throw new AppError(httpStatus.BAD_REQUEST, "QR token is required");
+  }
+
+  // Format: USER_QR:<userId>:<signature>
+  if (qrToken.startsWith("USER_QR:")) {
+    const parts = qrToken.split(":");
+    if (parts.length === 3) {
+      const userId = parts[1];
+      const signature = parts[2];
+      const expectedSignature = crypto
+        .createHmac("sha256", envVars.JWT_ACCESS_SECRET)
+        .update(userId)
+        .digest("hex");
+
+      if (signature === expectedSignature) {
+        return userId;
+      }
+    }
+  }
+
+  // Fallback if raw Mongoose ObjectId string was passed
+  if (qrToken.length === 24) {
+    return qrToken;
+  }
+
+  throw new AppError(httpStatus.BAD_REQUEST, "Invalid or corrupted User QR code");
+};
 
 /**
  * Get today's active QR code token & data URL.
@@ -84,7 +158,10 @@ const validateDailyToken = async (token: string): Promise<boolean> => {
 };
 
 export const QRCodeServices = {
+  generateUserPersonalQR,
+  verifyUserQRToken,
   getOrGenerateTodayQR,
   regenerateTodayQR,
   validateDailyToken,
 };
+

@@ -1,8 +1,21 @@
 import { Request, Response } from "express";
 import httpStatus from "http-status-codes";
+import { JwtPayload } from "jsonwebtoken";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { QRCodeServices } from "./qrCode.services";
+
+const getMyQRCode = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as JwtPayload;
+  const result = await QRCodeServices.generateUserPersonalQR(user.userId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Personal QR Code retrieved successfully",
+    data: result,
+  });
+});
 
 const getTodayQRCode = catchAsync(async (req: Request, res: Response) => {
   const forceRefresh = req.query.forceRefresh === "true";
@@ -30,6 +43,8 @@ const regenerateTodayQRCode = catchAsync(async (req: Request, res: Response) => 
 });
 
 export const QRCodeControllers = {
+  getMyQRCode,
   getTodayQRCode,
   regenerateTodayQRCode,
 };
+

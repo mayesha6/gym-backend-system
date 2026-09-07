@@ -6,6 +6,24 @@ import { sendResponse } from "../../utils/sendResponse";
 import { AttendanceServices } from "./attendance.services";
 import { Role } from "../user/user.interface";
 
+const scanUserQR = catchAsync(async (req: Request, res: Response) => {
+  const { qrToken, bookingId } = req.body;
+
+  const result = await AttendanceServices.scanUserQRAndMarkAttendance(
+    qrToken,
+    bookingId
+  );
+
+  const actionText = result.isCheckOut ? "Check-out updated" : "Check-in marked";
+
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: `${actionText} successfully for ${result.user.name} (${result.user.role})`,
+    data: result,
+  });
+});
+
 const markAttendance = catchAsync(async (req: Request, res: Response) => {
   const user = req.user as JwtPayload;
   const { token, bookingId } = req.body;
@@ -17,10 +35,12 @@ const markAttendance = catchAsync(async (req: Request, res: Response) => {
     bookingId
   );
 
+  const actionText = result.isCheckOut ? "Check-out updated" : "Check-in marked";
+
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: "Attendance marked successfully!",
+    message: `${actionText} successfully!`,
     data: result,
   });
 });
@@ -50,7 +70,9 @@ const getDailyLogs = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const AttendanceControllers = {
+  scanUserQR,
   markAttendance,
   getMyHistory,
   getDailyLogs,
 };
+
