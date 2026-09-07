@@ -6,10 +6,8 @@ const markAttendanceSchema = z.object({
 });
 
 const scanUserQRSchema = z.object({
-  body: z.object({
-    qrToken: z.string().min(1, { message: "User QR token is required" }),
-    bookingId: z.string().optional(),
-  }),
+  qrToken: z.string().min(1, { message: "User QR token is required" }),
+  bookingId: z.string().optional(),
 });
 
 export const AttendanceValidations = {
