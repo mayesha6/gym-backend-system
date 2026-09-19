@@ -179,6 +179,25 @@ const deleteAllUsers = async () => {
   return result;
 };
 
+const updateWebPushToken = async (
+  userId: string,
+  payload: { deviceToken?: string; webPushSubscription?: { endpoint: string; keys: { p256dh: string; auth: string } } }
+) => {
+  const updateQuery: any = {};
+  if (payload.deviceToken) {
+    updateQuery.$addToSet = { deviceTokens: payload.deviceToken };
+  }
+  if (payload.webPushSubscription) {
+    updateQuery.$addToSet = { webPushSubscriptions: payload.webPushSubscription };
+  }
+
+  const user = await User.findByIdAndUpdate(userId, updateQuery, { new: true });
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+  return { message: "Web push token registered successfully" };
+};
+
 export const UserServices = {
   createUser,
   addMember,
@@ -190,4 +209,5 @@ export const UserServices = {
   deleteOwnAccount,
   deleteUserById,
   deleteAllUsers,
+  updateWebPushToken,
 };

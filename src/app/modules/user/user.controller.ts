@@ -125,6 +125,18 @@ const deleteAllUsers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateWebPushToken = catchAsync(async (req: Request, res: Response) => {
+  const userToken = req.user as JwtPayload;
+  const result = await UserServices.updateWebPushToken(userToken.userId, req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Web push token updated successfully",
+    data: result,
+  });
+});
+
 export const UserControllers = {
   createUser,
   addMember,
@@ -136,4 +148,5 @@ export const UserControllers = {
   deleteOwnAccount,
   deleteUserById,
   deleteAllUsers,
+  updateWebPushToken,
 };

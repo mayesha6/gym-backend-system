@@ -36,6 +36,12 @@ router.patch(
   UserControllers.updateMyProfile
 );
 
+router.patch(
+  "/device-token",
+  checkAuth(...Object.values(Role)),
+  UserControllers.updateWebPushToken
+);
+
 router.get(
   "/:id",
   checkAuth(Role.ADMIN, Role.SUPER_ADMIN, Role.COACH, Role.MEMBER),

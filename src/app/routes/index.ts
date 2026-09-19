@@ -12,6 +12,8 @@ import { SettingRoutes } from "../modules/setting/setting.routes";
 import { AttendanceRoutes } from "../modules/attendance/attendance.routes";
 import { QRCodeRoutes } from "../modules/qrCode/qrCode.routes";
 import { PaymentRoutes } from "../modules/payment/payment.routes";
+import { PickupDropoffRoutes } from "../modules/pickupDropoff/pickupDropoff.routes";
+import { NotificationRoutes } from "../modules/notification/notification.routes";
 
 export const router = Router();
 
@@ -67,6 +69,14 @@ const moduleRoutes = [
   {
     path: "/payment",
     route: PaymentRoutes,
+  },
+  {
+    path: "/pickup-dropoff",
+    route: PickupDropoffRoutes,
+  },
+  {
+    path: "/notification",
+    route: NotificationRoutes,
   },
 ];
 

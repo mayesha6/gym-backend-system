@@ -5,6 +5,7 @@ export enum Role {
   ADMIN = "ADMIN",
   COACH = "COACH",
   MEMBER = "MEMBER",
+  PARENT = "PARENT",
   USER = "USER"
 }
 
@@ -58,6 +59,16 @@ export interface IUser {
   subscriptionStatus?: SubscriptionStatus;
   subscriptionStartDate?: Date;
   subscriptionEndDate?: Date;
+
+  // Push Notification / Web Push Subscriptions
+  deviceTokens?: string[];
+  webPushSubscriptions?: Array<{
+    endpoint: string;
+    keys: {
+      p256dh: string;
+      auth: string;
+    };
+  }>;
 
   createdAt?: Date;
   updatedAt?: Date;

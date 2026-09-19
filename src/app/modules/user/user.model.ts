@@ -50,7 +50,17 @@ const userSchema = new Schema<IUser>({
         default: SubscriptionStatus.INACTIVE
     },
     subscriptionStartDate: { type: Date },
-    subscriptionEndDate: { type: Date }
+    subscriptionEndDate: { type: Date },
+    deviceTokens: [{ type: String }],
+    webPushSubscriptions: [
+        {
+            endpoint: { type: String, required: true },
+            keys: {
+                p256dh: { type: String, required: true },
+                auth: { type: String, required: true }
+            }
+        }
+    ]
 }, {
     timestamps: true,
     versionKey: false
