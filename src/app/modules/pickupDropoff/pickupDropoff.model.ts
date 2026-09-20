@@ -41,11 +41,11 @@ const pickupDropoffSchema = new Schema<IPickupDropoff>(
     },
     classId: {
       type: Schema.Types.ObjectId,
-      ref: "Class",
+      ref: "ClassSession",
     },
     bookingId: {
       type: Schema.Types.ObjectId,
-      ref: "Booking",
+      ref: "ClassBooking",
     },
     type: {
       type: String,
