@@ -3,7 +3,7 @@ import { checkAuth } from "../../middlewares/checkAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
 import { UserControllers } from "./user.controller";
 import { Role } from "./user.interface";
-import { addMemberZodSchema, updateUserZodSchema } from "./user.validation";
+import { addChildZodSchema, addMemberZodSchema, updateUserZodSchema } from "./user.validation";
 import { parseFormDataMiddleware } from "../../middlewares/parseFormDataMiddleware";
 import { FileTypes, upload } from "../../config/S3Client.config";
 
@@ -40,6 +40,19 @@ router.patch(
   "/device-token",
   checkAuth(...Object.values(Role)),
   UserControllers.updateWebPushToken
+);
+
+router.post(
+  "/add-child",
+  checkAuth(Role.PARENT, Role.SUPER_ADMIN, Role.ADMIN, Role.USER),
+  validateRequest(addChildZodSchema),
+  UserControllers.addChild
+);
+
+router.get(
+  "/my-children",
+  checkAuth(Role.PARENT, Role.SUPER_ADMIN, Role.ADMIN, Role.USER),
+  UserControllers.getMyChildren
 );
 
 router.get(

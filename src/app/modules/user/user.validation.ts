@@ -42,3 +42,15 @@ export const updateUserZodSchema = z.object({
   }).optional()
 });
 
+export const addChildZodSchema = z.object({
+  name: z.string().min(2, { message: "Child name must be at least 2 characters long." }),
+  dateOfBirth: z.string().optional(),
+  gender: z.string().optional(),
+  medicalNotes: z.string().optional(),
+  emergencyContact: z.object({
+    name: z.string().optional(),
+    phone: z.string().optional(),
+    relationship: z.string().optional()
+  }).optional()
+});
+

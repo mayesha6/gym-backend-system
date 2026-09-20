@@ -137,6 +137,30 @@ const updateWebPushToken = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const addChild = catchAsync(async (req: Request, res: Response) => {
+  const userToken = req.user as JwtPayload;
+  const result = await UserServices.addChild(userToken.userId, req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Child profile registered successfully",
+    data: result,
+  });
+});
+
+const getMyChildren = catchAsync(async (req: Request, res: Response) => {
+  const userToken = req.user as JwtPayload;
+  const result = await UserServices.getMyChildren(userToken.userId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Children profiles fetched successfully",
+    data: result,
+  });
+});
+
 export const UserControllers = {
   createUser,
   addMember,
@@ -149,4 +173,6 @@ export const UserControllers = {
   deleteUserById,
   deleteAllUsers,
   updateWebPushToken,
+  addChild,
+  getMyChildren,
 };

@@ -60,7 +60,8 @@ const userSchema = new Schema<IUser>({
                 auth: { type: String, required: true }
             }
         }
-    ]
+    ],
+    parentId: { type: Schema.Types.ObjectId, ref: "User", index: true }
 }, {
     timestamps: true,
     versionKey: false

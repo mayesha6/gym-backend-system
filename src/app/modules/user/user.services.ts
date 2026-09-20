@@ -198,6 +198,51 @@ const updateWebPushToken = async (
   return { message: "Web push token registered successfully" };
 };
 
+const addChild = async (
+  parentId: string,
+  payload: {
+    name: string;
+    dateOfBirth?: string;
+    picture?: string;
+    emergencyContact?: any;
+  }
+) => {
+  const parentUser = await User.findById(parentId);
+  if (!parentUser) {
+    throw new AppError(httpStatus.NOT_FOUND, "Parent account not found");
+  }
+
+  const memberId = await generateMemberId();
+  // Generate a random dummy email for child account reference
+  const childEmail = `child_${Date.now()}@palestra.club`;
+
+  const child = await User.create({
+    name: payload.name,
+    email: childEmail,
+    memberId,
+    role: Role.MEMBER,
+    parentId: parentUser._id,
+    isActive: IsActive.ACTIVE,
+    isVerified: true,
+    dateOfBirth: payload.dateOfBirth ? new Date(payload.dateOfBirth) : undefined,
+    picture: payload.picture,
+    emergencyContact: payload.emergencyContact || parentUser.emergencyContact || {
+      name: parentUser.name,
+      phone: parentUser.phone,
+      relationship: "Parent",
+    },
+  });
+
+  return child;
+};
+
+const getMyChildren = async (parentId: string) => {
+  const children = await User.find({ parentId, isDeleted: { $ne: true } }).select(
+    "-password -auths"
+  );
+  return children;
+};
+
 export const UserServices = {
   createUser,
   addMember,
@@ -210,4 +255,6 @@ export const UserServices = {
   deleteUserById,
   deleteAllUsers,
   updateWebPushToken,
+  addChild,
+  getMyChildren,
 };

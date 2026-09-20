@@ -364,6 +364,88 @@
 							]
 						}
 					}
+				},
+				{
+					"name": "Register Device / Web Push Token",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"deviceToken\": \"SAMPLE_WEB_PUSH_DEVICE_TOKEN_12345\",\n  \"webPushSubscription\": {\n    \"endpoint\": \"https://fcm.googleapis.com/fcm/send/sample_endpoint\",\n    \"keys\": {\n      \"p256dh\": \"sample_p256dh_key\",\n      \"auth\": \"sample_auth_key\"\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/device-token",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"device-token"
+							]
+						}
+					}
+				},
+				{
+					"name": "Add Child Profile (Parent)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Leo Thorne\",\n  \"dateOfBirth\": \"2018-05-12\",\n  \"gender\": \"Male\",\n  \"medicalNotes\": \"No allergies\",\n  \"emergencyContact\": {\n    \"name\": \"Marcus Thorne\",\n    \"phone\": \"+1 213 555 0184\",\n    \"relationship\": \"Father\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/add-child",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"add-child"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get My Children List (Parent)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/my-children",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"my-children"
+							]
+						}
+					}
 				}
 			]
 		},
@@ -1383,6 +1465,278 @@
 							"path": [
 								"payment",
 								"webhook"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "12. Pickup & Drop-off Scheduling",
+			"item": [
+				{
+					"name": "Create Pickup/Drop-off Schedule (Parent)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"childId\": \"CHILD_USER_ID_HERE\",\n  \"classId\": \"CLASS_ID_HERE\",\n  \"type\": \"BOTH\",\n  \"scheduledDate\": \"2026-09-20\",\n  \"dropOffTime\": \"2026-09-20T09:30:00.000Z\",\n  \"pickUpTime\": \"2026-09-20T11:00:00.000Z\",\n  \"assignedPerson\": {\n    \"name\": \"Robert Smith\",\n    \"phone\": \"+1 305 555 1212\",\n    \"relationship\": \"Uncle\",\n    \"vehicleInfo\": \"Black Honda Civic (License: XYZ-1234)\"\n  },\n  \"notes\": \"Please ensure child has helmet before leaving.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pickup-dropoff",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pickup-dropoff"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Schedules (Parent / Admin / Coach)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/pickup-dropoff?date=2026-09-20&status=SCHEDULED",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pickup-dropoff"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "2026-09-20"
+								},
+								{
+									"key": "status",
+									"value": "SCHEDULED"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Single Schedule Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/pickup-dropoff/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pickup-dropoff",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "SCHEDULE_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Schedule / Assigned Person (Parent)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"assignedPerson\": {\n    \"name\": \"Sarah Smith\",\n    \"phone\": \"+1 305 555 8899\",\n    \"relationship\": \"Mother\",\n    \"vehicleInfo\": \"White Toyota RAV4\"\n  },\n  \"notes\": \"Updated pickup driver to mother.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pickup-dropoff/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pickup-dropoff",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "SCHEDULE_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Schedule Status (Coach / Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"DROPPED_OFF\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pickup-dropoff/:id/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pickup-dropoff",
+								":id",
+								"status"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "SCHEDULE_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Schedule (Parent / Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/pickup-dropoff/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pickup-dropoff",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "SCHEDULE_ID_HERE"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "13. Notifications & Web Alerts",
+			"item": [
+				{
+					"name": "Get My Notifications Feed (Web Bell Icon)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/notification/my-notifications",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"notification",
+								"my-notifications"
+							]
+						}
+					}
+				},
+				{
+					"name": "Mark Single Notification as Read",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/notification/:id/read",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"notification",
+								":id",
+								"read"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "NOTIFICATION_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Mark All Notifications as Read",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/notification/read-all",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"notification",
+								"read-all"
 							]
 						}
 					}

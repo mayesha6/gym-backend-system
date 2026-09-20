@@ -70,6 +70,9 @@ export interface IUser {
     };
   }>;
 
+  // Parent - Child Relation
+  parentId?: Types.ObjectId;
+
   createdAt?: Date;
   updatedAt?: Date;
 }
