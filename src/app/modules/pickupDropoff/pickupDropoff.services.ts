@@ -7,6 +7,14 @@ import { User } from "../user/user.model";
 import { IPickupDropoff, PickupDropoffStatus } from "./pickupDropoff.interface";
 import { PickupDropoff } from "./pickupDropoff.model";
 
+const extractIdString = (id: any): string => {
+  if (!id) return "";
+  if (typeof id === "string") return id;
+  if (id._id) return id._id.toString();
+  if (typeof id.toString === "function") return id.toString();
+  return String(id);
+};
+
 const createSchedule = async (parentId: string, payload: Partial<IPickupDropoff>) => {
   const child = await User.findById(payload.childId);
   if (!child) {
@@ -83,11 +91,14 @@ const getSingleSchedule = async (id: string, userId: string, userRole: string) =
     throw new AppError(httpStatus.NOT_FOUND, "Schedule not found");
   }
 
+  const parentIdStr = extractIdString(schedule.parentId);
+  const userIdStr = extractIdString(userId);
+
   if (
     userRole !== Role.ADMIN &&
     userRole !== Role.SUPER_ADMIN &&
     userRole !== Role.COACH &&
-    schedule.parentId.toString() !== userId
+    parentIdStr !== userIdStr
   ) {
     throw new AppError(httpStatus.FORBIDDEN, "Access denied to this schedule");
   }
@@ -106,10 +117,13 @@ const updateSchedule = async (
     throw new AppError(httpStatus.NOT_FOUND, "Schedule not found");
   }
 
+  const parentIdStr = extractIdString(schedule.parentId);
+  const userIdStr = extractIdString(userId);
+
   if (
     userRole !== Role.ADMIN &&
     userRole !== Role.SUPER_ADMIN &&
-    schedule.parentId.toString() !== userId
+    parentIdStr !== userIdStr
   ) {
     throw new AppError(httpStatus.FORBIDDEN, "Access denied to modify this schedule");
   }
@@ -157,7 +171,7 @@ const updateStatus = async (
 
   // Real-time Push Alert to Parent
   await sendWebPushNotification({
-    userId: schedule.parentId,
+    userId: extractIdString(schedule.parentId),
     title: `Pickup/Drop-off Update: ${newStatus}`,
     body: statusMessage,
     type: NotificationType.STATUS_UPDATE,
@@ -174,10 +188,13 @@ const deleteSchedule = async (id: string, userId: string, userRole: string) => {
     throw new AppError(httpStatus.NOT_FOUND, "Schedule not found");
   }
 
+  const parentIdStr = extractIdString(schedule.parentId);
+  const userIdStr = extractIdString(userId);
+
   if (
     userRole !== Role.ADMIN &&
     userRole !== Role.SUPER_ADMIN &&
-    schedule.parentId.toString() !== userId
+    parentIdStr !== userIdStr
   ) {
     throw new AppError(httpStatus.FORBIDDEN, "Access denied to delete this schedule");
   }
