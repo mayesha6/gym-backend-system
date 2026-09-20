@@ -11,6 +11,14 @@ import { BookingStatus } from "./booking.interface";
 import { ClassBooking } from "./booking.model";
 import mongoose from "mongoose";
 
+const extractIdString = (id: any): string | undefined => {
+  if (!id) return undefined;
+  if (typeof id === "string") return id;
+  if (id._id) return id._id.toString();
+  if (typeof id.toString === "function") return id.toString();
+  return String(id);
+};
+
 const enrollInClass = async (loggedInUserId: string, classId: string, childId?: string) => {
   const loggedInUser = await User.findById(loggedInUserId);
   if (!loggedInUser || loggedInUser.isDeleted) {
@@ -25,12 +33,19 @@ const enrollInClass = async (loggedInUserId: string, classId: string, childId?: 
       throw new AppError(httpStatus.NOT_FOUND, "Child profile not found");
     }
 
+    const childParentIdStr = extractIdString(childUser.parentId);
+    const loggedInUserIdStr = extractIdString(loggedInUserId);
+
     if (
       loggedInUser.role === Role.PARENT ||
       loggedInUser.role === Role.USER ||
       loggedInUser.role === Role.MEMBER
     ) {
-      if (childUser.parentId?.toString() !== loggedInUserId) {
+      // If child profile has no parentId set, auto-link to current logged-in parent
+      if (!childParentIdStr) {
+        childUser.parentId = loggedInUser._id;
+        await childUser.save();
+      } else if (childParentIdStr !== loggedInUserIdStr) {
         throw new AppError(
           httpStatus.FORBIDDEN,
           "You can only enroll your own child in classes"
@@ -159,12 +174,15 @@ const unenrollFromClass = async (loggedInUserId: string, classId: string, childI
       throw new AppError(httpStatus.NOT_FOUND, "Child profile not found");
     }
 
+    const childParentIdStr = extractIdString(childUser.parentId);
+    const loggedInUserIdStr = extractIdString(loggedInUserId);
+
     if (
       loggedInUser.role === Role.PARENT ||
       loggedInUser.role === Role.USER ||
       loggedInUser.role === Role.MEMBER
     ) {
-      if (childUser.parentId?.toString() !== loggedInUserId) {
+      if (childParentIdStr && childParentIdStr !== loggedInUserIdStr) {
         throw new AppError(
           httpStatus.FORBIDDEN,
           "You can only unenroll your own child from classes"
