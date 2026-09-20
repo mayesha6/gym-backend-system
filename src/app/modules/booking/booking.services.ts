@@ -11,17 +11,44 @@ import { BookingStatus } from "./booking.interface";
 import { ClassBooking } from "./booking.model";
 import mongoose from "mongoose";
 
-const enrollInClass = async (userId: string, classId: string) => {
-  const user = await User.findById(userId);
-  if (!user || user.isDeleted) {
+const enrollInClass = async (loggedInUserId: string, classId: string, childId?: string) => {
+  const loggedInUser = await User.findById(loggedInUserId);
+  if (!loggedInUser || loggedInUser.isDeleted) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  if (user.role !== Role.MEMBER && user.role !== Role.USER) {
-    throw new AppError(
-      httpStatus.FORBIDDEN,
-      "Only members can enroll in classes"
-    );
+  let targetUserId = loggedInUserId;
+
+  if (childId) {
+    const childUser = await User.findById(childId);
+    if (!childUser || childUser.isDeleted) {
+      throw new AppError(httpStatus.NOT_FOUND, "Child profile not found");
+    }
+
+    if (
+      loggedInUser.role === Role.PARENT ||
+      loggedInUser.role === Role.USER ||
+      loggedInUser.role === Role.MEMBER
+    ) {
+      if (childUser.parentId?.toString() !== loggedInUserId) {
+        throw new AppError(
+          httpStatus.FORBIDDEN,
+          "You can only enroll your own child in classes"
+        );
+      }
+    }
+    targetUserId = childId;
+  } else {
+    if (
+      loggedInUser.role !== Role.MEMBER &&
+      loggedInUser.role !== Role.USER &&
+      loggedInUser.role !== Role.PARENT
+    ) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "Only members or parents can enroll in classes"
+      );
+    }
   }
 
   const classSession = await ClassSession.findById(classId);
@@ -48,20 +75,25 @@ const enrollInClass = async (userId: string, classId: string) => {
     throw new AppError(httpStatus.BAD_REQUEST, "Class is fully booked");
   }
 
-  // 2. Check Duplicate Enrollment
+  // 3. Check Duplicate Enrollment
   const existingBooking = await ClassBooking.findOne({
     classId: new mongoose.Types.ObjectId(classId),
-    memberId: new mongoose.Types.ObjectId(userId),
+    memberId: new mongoose.Types.ObjectId(targetUserId),
     status: BookingStatus.CONFIRMED,
   });
 
   if (existingBooking) {
-    throw new AppError(httpStatus.BAD_REQUEST, "You are already enrolled in this class");
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      childId
+        ? "This child is already enrolled in this class"
+        : "You are already enrolled in this class"
+    );
   }
 
-  // 3. Check Member Schedule Conflict (Time Overlap with another booked class)
+  // 4. Check Member Schedule Conflict (Time Overlap with another booked class)
   const existingUserBookings = await ClassBooking.find({
-    memberId: new mongoose.Types.ObjectId(userId),
+    memberId: new mongoose.Types.ObjectId(targetUserId),
     status: BookingStatus.CONFIRMED,
   }).populate("classId");
 
@@ -79,26 +111,26 @@ const enrollInClass = async (userId: string, classId: string) => {
       ) {
         throw new AppError(
           httpStatus.BAD_REQUEST,
-          `Schedule conflict: You are already enrolled in another class ("${bookedClass.title}") scheduled from ${bookedClass.startTime} to ${bookedClass.endTime} on this date`
+          `Schedule conflict: Already enrolled in another class ("${bookedClass.title}") scheduled from ${bookedClass.startTime} to ${bookedClass.endTime} on this date`
         );
       }
     }
   }
 
-  // 4. Check User Membership Allowance
-  const membership = await MembershipServices.getMyMembership(userId);
+  // 5. Check User Membership Allowance
+  const membership = await MembershipServices.getMyMembership(targetUserId);
   const plan = await MembershipPlan.findById(membership.currentPlanId);
   if (plan && membership.classesUsedThisMonth >= plan.monthlyClassLimit) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      `Monthly class limit of ${plan.monthlyClassLimit} reached for your current plan`
+      `Monthly class limit of ${plan.monthlyClassLimit} reached for current plan`
     );
   }
 
-  // 5. Create Booking & Update Usage
+  // 6. Create Booking & Update Usage
   const booking = await ClassBooking.create({
     classId: new mongoose.Types.ObjectId(classId),
-    memberId: new mongoose.Types.ObjectId(userId),
+    memberId: new mongoose.Types.ObjectId(targetUserId),
     status: BookingStatus.CONFIRMED,
     bookedAt: new Date(),
   });
@@ -113,22 +145,38 @@ const enrollInClass = async (userId: string, classId: string) => {
   };
 };
 
-const unenrollFromClass = async (userId: string, classId: string) => {
-  const user = await User.findById(userId);
-  if (!user || user.isDeleted) {
+const unenrollFromClass = async (loggedInUserId: string, classId: string, childId?: string) => {
+  const loggedInUser = await User.findById(loggedInUserId);
+  if (!loggedInUser || loggedInUser.isDeleted) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  if (user.role !== Role.MEMBER && user.role !== Role.USER) {
-    throw new AppError(
-      httpStatus.FORBIDDEN,
-      "Only members can unenroll from classes"
-    );
+  let targetUserId = loggedInUserId;
+
+  if (childId) {
+    const childUser = await User.findById(childId);
+    if (!childUser || childUser.isDeleted) {
+      throw new AppError(httpStatus.NOT_FOUND, "Child profile not found");
+    }
+
+    if (
+      loggedInUser.role === Role.PARENT ||
+      loggedInUser.role === Role.USER ||
+      loggedInUser.role === Role.MEMBER
+    ) {
+      if (childUser.parentId?.toString() !== loggedInUserId) {
+        throw new AppError(
+          httpStatus.FORBIDDEN,
+          "You can only unenroll your own child from classes"
+        );
+      }
+    }
+    targetUserId = childId;
   }
 
   const booking = await ClassBooking.findOne({
     classId: new mongoose.Types.ObjectId(classId),
-    memberId: new mongoose.Types.ObjectId(userId),
+    memberId: new mongoose.Types.ObjectId(targetUserId),
     status: BookingStatus.CONFIRMED,
   });
 
@@ -140,7 +188,7 @@ const unenrollFromClass = async (userId: string, classId: string) => {
   await booking.save();
 
   // Restore Allowance
-  const membership = await MembershipServices.getMyMembership(userId);
+  const membership = await MembershipServices.getMyMembership(targetUserId);
   if (membership.classesUsedThisMonth > 0) {
     membership.classesUsedThisMonth -= 1;
     await membership.save();

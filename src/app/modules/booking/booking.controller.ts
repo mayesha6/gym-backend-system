@@ -7,8 +7,8 @@ import { BookingServices } from "./booking.services";
 
 const enrollInClass = catchAsync(async (req: Request, res: Response) => {
   const userToken = req.user as JwtPayload;
-  const { classId } = req.body;
-  const result = await BookingServices.enrollInClass(userToken.userId, classId);
+  const { classId, childId } = req.body;
+  const result = await BookingServices.enrollInClass(userToken.userId, classId, childId);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.CREATED,
@@ -20,7 +20,8 @@ const enrollInClass = catchAsync(async (req: Request, res: Response) => {
 const unenrollFromClass = catchAsync(async (req: Request, res: Response) => {
   const userToken = req.user as JwtPayload;
   const { classId } = req.params;
-  const result = await BookingServices.unenrollFromClass(userToken.userId, classId);
+  const childId = (req.query.childId as string) || (req.body?.childId as string);
+  const result = await BookingServices.unenrollFromClass(userToken.userId, classId, childId);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,

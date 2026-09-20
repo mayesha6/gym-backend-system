@@ -1,1747 +1,1951 @@
 {
-	"info": {
-		"_postman_id": "palestra-combat-club-api-collection",
-		"name": "Palestra Combat Club - Full API Collection",
-		"description": "Complete Postman collection for Palestra Combat Club Gym Management Backend System containing all request bodies, route parameters, headers, and query parameters.",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"variable": [
-		{
-			"key": "baseUrl",
-			"value": "http://localhost:5000/api/v1",
-			"type": "string"
-		},
-		{
-			"key": "accessToken",
-			"value": "YOUR_JWT_ACCESS_TOKEN_HERE",
-			"type": "string"
-		}
-	],
-	"item": [
-		{
-			"name": "1. Authentication & OTP",
-			"item": [
-				{
-					"name": "Login (Credentials)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"admin@palestra.club\",\n  \"password\": \"Palestra@1234\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/auth/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"auth",
-								"login"
-							]
-						}
-					}
-				},
-				{
-					"name": "Refresh Access Token",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/auth/refresh-token",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"auth",
-								"refresh-token"
-							]
-						}
-					}
-				},
-				{
-					"name": "Change Password",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"oldPassword\": \"Palestra@1234\",\n  \"newPassword\": \"NewPalestraPass@2026\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/auth/change-password",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"auth",
-								"change-password"
-							]
-						}
-					}
-				},
-				{
-					"name": "Send OTP (Forgot Password)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"member@example.com\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/otp/send-otp",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"otp",
-								"send-otp"
-							]
-						}
-					}
-				},
-				{
-					"name": "Verify OTP",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"member@example.com\",\n  \"otp\": \"123456\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/otp/verify-otp",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"otp",
-								"verify-otp"
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "2. User & Member Management",
-			"item": [
-				{
-					"name": "Add Member (Admin Only)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Marcus Thorne\",\n  \"email\": \"marcus.t@example.com\",\n  \"password\": \"MemberPass@1234\",\n  \"phone\": \"+1 213 555 0184\",\n  \"membershipPlan\": \"MEMBERSHIP_PLAN_ID_HERE\",\n  \"startDate\": \"2026-08-14\",\n  \"expireDate\": \"2027-08-14\",\n  \"status\": \"ACTIVE\",\n  \"emergencyContact\": {\n    \"name\": \"John Thorne\",\n    \"phone\": \"+1 213 555 9999\",\n    \"relationship\": \"Brother\"\n  }\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/user/add-member",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"user",
-								"add-member"
-							]
-						}
-					}
-				},
-				{
-					"name": "Get All Users / Members (Admin Datatable)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/user/all-users?page=1&limit=10&search=Marcus&role=MEMBER",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"user",
-								"all-users"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								},
-								{
-									"key": "search",
-									"value": "Marcus"
-								},
-								{
-									"key": "role",
-									"value": "MEMBER"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Current User Profile (/me)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/user/me",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"user",
-								"me"
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Single Member Details",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/user/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"user",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "USER_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Update My Profile",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Marcus Rivera\",\n  \"phone\": \"+1 305 123 4567\",\n  \"dateOfBirth\": \"1992-05-15\",\n  \"emergencyContact\": {\n    \"name\": \"Elena Rivera\",\n    \"phone\": \"+1 305 987 6543\",\n    \"relationship\": \"Spouse\"\n  }\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/user/update-my-profile",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"user",
-								"update-my-profile"
-							]
-						}
-					}
-				},
-				{
-					"name": "Update User (Admin)",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Marcus Thorne Updated\",\n  \"phone\": \"+1 213 555 8888\",\n  \"isActive\": \"ACTIVE\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/user/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"user",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "USER_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Delete User (Admin)",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/user/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"user",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "USER_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Register Device / Web Push Token",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"deviceToken\": \"SAMPLE_WEB_PUSH_DEVICE_TOKEN_12345\",\n  \"webPushSubscription\": {\n    \"endpoint\": \"https://fcm.googleapis.com/fcm/send/sample_endpoint\",\n    \"keys\": {\n      \"p256dh\": \"sample_p256dh_key\",\n      \"auth\": \"sample_auth_key\"\n    }\n  }\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/user/device-token",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"user",
-								"device-token"
-							]
-						}
-					}
-				},
-				{
-					"name": "Add Child Profile (Parent)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Leo Thorne\",\n  \"dateOfBirth\": \"2018-05-12\",\n  \"gender\": \"Male\",\n  \"medicalNotes\": \"No allergies\",\n  \"emergencyContact\": {\n    \"name\": \"Marcus Thorne\",\n    \"phone\": \"+1 213 555 0184\",\n    \"relationship\": \"Father\"\n  }\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/user/add-child",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"user",
-								"add-child"
-							]
-						}
-					}
-				},
-				{
-					"name": "Get My Children List (Parent)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/user/my-children",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"user",
-								"my-children"
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "3. Membership Plan Management",
-			"item": [
-				{
-					"name": "Create Membership Plan (Admin)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"title\": \"Premium\",\n  \"price\": 99,\n  \"monthlyClassLimit\": 12,\n  \"bookingWindowHours\": 72,\n  \"supportLevel\": \"VIP\",\n  \"features\": [\n    \"12 Group Classes\",\n    \"Private Training\",\n    \"Semi-Private Classes\",\n    \"Priority Booking\",\n    \"Pickup Service\",\n    \"Member Events\"\n  ]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/membership-plan",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"membership-plan"
-							]
-						}
-					}
-				},
-				{
-					"name": "Get All Membership Plans",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/membership-plan",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"membership-plan"
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Single Membership Plan",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/membership-plan/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"membership-plan",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "PLAN_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Update Membership Plan (Admin)",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"price\": 109,\n  \"monthlyClassLimit\": 14\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/membership-plan/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"membership-plan",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "PLAN_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Delete Membership Plan (Admin)",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/membership-plan/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"membership-plan",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "PLAN_ID_HERE"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "4. User Membership Subscriptions",
-			"item": [
-				{
-					"name": "Get My Membership Details",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/membership/my-membership",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"membership",
-								"my-membership"
-							]
-						}
-					}
-				},
-				{
-					"name": "Request Plan Change (Upgrade / Downgrade)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"targetPlanId\": \"TARGET_MEMBERSHIP_PLAN_ID_HERE\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/membership/request-change",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"membership",
-								"request-change"
-							]
-						}
-					}
-				},
-				{
-					"name": "Request Membership Cancellation (30-Day Notice)",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/membership/cancel",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"membership",
-								"cancel"
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "5. Class Category Management",
-			"item": [
-				{
-					"name": "Create Class Category (Admin)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Boxing\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/category",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"category"
-							]
-						}
-					}
-				},
-				{
-					"name": "Get All Class Categories",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/category",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"category"
-							]
-						}
-					}
-				},
-				{
-					"name": "Update Class Category (Admin)",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Boxing & Conditioning\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/category/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"category",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "CATEGORY_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Delete Class Category (Admin)",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/category/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"category",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "CATEGORY_ID_HERE"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "6. Class Scheduling & Management",
-			"item": [
-				{
-					"name": "Create Class Session (Admin)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"title\": \"Strength Training\",\n  \"categoryId\": \"CATEGORY_ID_HERE\",\n  \"coachId\": \"COACH_USER_ID_HERE\",\n  \"maxCapacity\": 16,\n  \"date\": \"2026-08-25\",\n  \"startTime\": \"9:00 AM\",\n  \"endTime\": \"10:00 AM\",\n  \"allowedPlans\": [\"Basic\", \"Standard\", \"Premium\"],\n  \"location\": \"Main Studio\",\n  \"coachNotes\": \"Please arrive 10 minutes early and bring your training shoes.\",\n  \"requirements\": [\n    \"Arrive 10 minutes early\",\n    \"Bring proper training equipment\",\n    \"Bring a water bottle\"\n  ]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/class",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"class"
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Weekly Class Schedule",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/class/schedule?startDate=2026-08-24&endDate=2026-08-30",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"class",
-								"schedule"
-							],
-							"query": [
-								{
-									"key": "startDate",
-									"value": "2026-08-24"
-								},
-								{
-									"key": "endDate",
-									"value": "2026-08-30"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Single Class Details",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/class/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"class",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "CLASS_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Update Class Session (Admin)",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"maxCapacity\": 20,\n  \"location\": \"Palestra Main Studio\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/class/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"class",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "CLASS_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Delete Class Session (Admin)",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/class/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"class",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "CLASS_ID_HERE"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "7. Class Booking & Roster",
-			"item": [
-				{
-					"name": "Enroll in Class",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"classId\": \"CLASS_ID_HERE\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/booking/enroll",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"booking",
-								"enroll"
-							]
-						}
-					}
-				},
-				{
-					"name": "Unenroll from Class",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/booking/unenroll/:classId",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"booking",
-								"unenroll",
-								":classId"
-							],
-							"variable": [
-								{
-									"key": "classId",
-									"value": "CLASS_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Who's Going List (Public Class Modal)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/booking/whos-going/:classId",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"booking",
-								"whos-going",
-								":classId"
-							],
-							"variable": [
-								{
-									"key": "classId",
-									"value": "CLASS_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Class Roster (Admin / Coach)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/booking/roster/:classId",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"booking",
-								"roster",
-								":classId"
-							],
-							"variable": [
-								{
-									"key": "classId",
-									"value": "CLASS_ID_HERE"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "8. Admin Dashboard Analytics",
-			"item": [
-				{
-					"name": "Get Admin Metrics (KPI Stats)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/dashboard/metrics",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"dashboard",
-								"metrics"
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "9. Gym Settings & Gymdesk Integration",
-			"item": [
-				{
-					"name": "Get Gym Profile Info",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/setting/gym-info",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"setting",
-								"gym-info"
-							]
-						}
-					}
-				},
-				{
-					"name": "Update Gym Profile Info (Admin)",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"gymName\": \"Palestra Combat Club\",\n  \"address\": \"42 Warrior Ave, Miami, FL 33101\",\n  \"phone\": \"+1 (305) 555-0190\",\n  \"email\": \"admin@palestra.club\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/setting/gym-info",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"setting",
-								"gym-info"
-							]
-						}
-					}
-				},
-				{
-					"name": "Update Gymdesk Config (Admin)",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"gymdeskApiKey\": \"gd_live_secret_key_12345\",\n  \"gymdeskSyncFrequency\": \"Every 1 Hour\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/setting/gymdesk-config",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"setting",
-								"gymdesk-config"
-							]
-						}
-					}
-				},
-				{
-					"name": "Trigger Gymdesk Manual Sync (Admin)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/setting/gymdesk-sync",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"setting",
-								"gymdesk-sync"
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "10. QR Code & Attendance Management",
-			"item": [
-				{
-					"name": "Get My Personal QR Code (Member / Coach)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/qr-code/my-qr",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"qr-code",
-								"my-qr"
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Today's Daily QR Code (Admin Only)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/qr-code/today",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"qr-code",
-								"today"
-							]
-						}
-					}
-				},
-				{
-					"name": "Regenerate Today's QR Code (Admin Only)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/qr-code/regenerate",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"qr-code",
-								"regenerate"
-							]
-						}
-					}
-				},
-				{
-					"name": "Scan Member/Coach Personal QR (Reception Scanner Check-In / Check-Out)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"qrToken\": \"USER_PERSONAL_QR_TOKEN_HERE\",\n  \"bookingId\": \"OPTIONAL_CLASS_BOOKING_ID_HERE\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/attendance/scan-user-qr",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"attendance",
-								"scan-user-qr"
-							]
-						}
-					}
-				},
-				{
-					"name": "Check-In / Check-Out via Scanned QR (Member / Coach)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"token\": \"PASTE_TODAYS_SCANNED_QR_TOKEN_HERE\",\n  \"bookingId\": \"OPTIONAL_CLASS_BOOKING_ID_HERE\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/attendance/check-in",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"attendance",
-								"check-in"
-							]
-						}
-					}
-				},
-				{
-					"name": "Get My Attendance History (Member / Coach)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/attendance/my-history",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"attendance",
-								"my-history"
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Daily Attendance Logs (Admin Only)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/attendance/daily-logs?date=2026-08-24",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"attendance",
-								"daily-logs"
-							],
-							"query": [
-								{
-									"key": "date",
-									"value": "2026-08-24"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "11. Stripe Payment & Recurring Subscriptions",
-			"item": [
-				{
-					"name": "Create Recurring Subscription Checkout Session",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"planId\": \"MEMBERSHIP_PLAN_ID_HERE\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/payment/checkout-session",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"payment",
-								"checkout-session"
-							]
-						}
-					}
-				},
-				{
-					"name": "Verify Stripe Checkout Session & Activate Membership",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/payment/verify-session?session_id=CHECKOUT_SESSION_ID_HERE",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"payment",
-								"verify-session"
-							],
-							"query": [
-								{
-									"key": "session_id",
-									"value": "CHECKOUT_SESSION_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Cancel Active Recurring Subscription",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/payment/cancel-subscription",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"payment",
-								"cancel-subscription"
-							]
-						}
-					}
-				},
-				{
-					"name": "Stripe Webhook Event (System / Stripe)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "stripe-signature",
-								"value": "t=12345,v1=signature_hash_here"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"id\": \"evt_test_webhook\",\n  \"type\": \"checkout.session.completed\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/payment/webhook",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"payment",
-								"webhook"
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "12. Pickup & Drop-off Scheduling",
-			"item": [
-				{
-					"name": "Create Pickup/Drop-off Schedule (Parent)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"childId\": \"CHILD_USER_ID_HERE\",\n  \"classId\": \"CLASS_ID_HERE\",\n  \"type\": \"BOTH\",\n  \"scheduledDate\": \"2026-09-20\",\n  \"dropOffTime\": \"2026-09-20T09:30:00.000Z\",\n  \"pickUpTime\": \"2026-09-20T11:00:00.000Z\",\n  \"assignedPerson\": {\n    \"name\": \"Robert Smith\",\n    \"phone\": \"+1 305 555 1212\",\n    \"relationship\": \"Uncle\",\n    \"vehicleInfo\": \"Black Honda Civic (License: XYZ-1234)\"\n  },\n  \"notes\": \"Please ensure child has helmet before leaving.\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/pickup-dropoff",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"pickup-dropoff"
-							]
-						}
-					}
-				},
-				{
-					"name": "Get All Schedules (Parent / Admin / Coach)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/pickup-dropoff?date=2026-09-20&status=SCHEDULED",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"pickup-dropoff"
-							],
-							"query": [
-								{
-									"key": "date",
-									"value": "2026-09-20"
-								},
-								{
-									"key": "status",
-									"value": "SCHEDULED"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Single Schedule Details",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/pickup-dropoff/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"pickup-dropoff",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "SCHEDULE_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Update Schedule / Assigned Person (Parent)",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"assignedPerson\": {\n    \"name\": \"Sarah Smith\",\n    \"phone\": \"+1 305 555 8899\",\n    \"relationship\": \"Mother\",\n    \"vehicleInfo\": \"White Toyota RAV4\"\n  },\n  \"notes\": \"Updated pickup driver to mother.\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/pickup-dropoff/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"pickup-dropoff",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "SCHEDULE_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Update Schedule Status (Coach / Admin)",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"status\": \"DROPPED_OFF\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/pickup-dropoff/:id/status",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"pickup-dropoff",
-								":id",
-								"status"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "SCHEDULE_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Delete Schedule (Parent / Admin)",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/pickup-dropoff/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"pickup-dropoff",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "SCHEDULE_ID_HERE"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "13. Notifications & Web Alerts",
-			"item": [
-				{
-					"name": "Get My Notifications Feed (Web Bell Icon)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/notification/my-notifications",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"notification",
-								"my-notifications"
-							]
-						}
-					}
-				},
-				{
-					"name": "Mark Single Notification as Read",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/notification/:id/read",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"notification",
-								":id",
-								"read"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "NOTIFICATION_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Mark All Notifications as Read",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/notification/read-all",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"notification",
-								"read-all"
-							]
-						}
-					}
-				}
-			]
-		}
-	]
+  "info": {
+    "_postman_id": "palestra-combat-club-api-collection",
+    "name": "Palestra Combat Club - Full API Collection",
+    "description": "Complete Postman collection for Palestra Combat Club Gym Management Backend System containing all request bodies, route parameters, headers, and query parameters.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "YOUR_JWT_ACCESS_TOKEN_HERE",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication & OTP",
+      "item": [
+        {
+          "name": "Login (Credentials)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@palestra.club\",\n  \"password\": \"Palestra@1234\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh Access Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh-token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh-token"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "change-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"Palestra@1234\",\n  \"newPassword\": \"NewPalestraPass@2026\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Set Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/set-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "set-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"NewPassword123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"member@palestra.club\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"member@palestra.club\",\n  \"otp\": \"123456\",\n  \"newPassword\": \"NewPassword123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify Signup OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/otp/verify-signup-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "otp",
+                "verify-signup-otp"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"member@palestra.club\",\n  \"otp\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Resend Signup OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/otp/resend-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "otp",
+                "resend-otp"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"member@palestra.club\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Resend Forgot Password OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/otp/forget-resend-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "otp",
+                "forget-resend-otp"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"member@palestra.club\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify Reset Password OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/otp/verify-reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "otp",
+                "verify-reset-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"member@palestra.club\",\n  \"otp\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Google Auth Redirect",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/google",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "google"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Google Auth Callback",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/google/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "google",
+                "callback"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. User & Member Management",
+      "item": [
+        {
+          "name": "Add User / Member (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Marcus Thorne\",\n  \"email\": \"marcus.t@example.com\",\n  \"password\": \"MemberPass@1234\",\n  \"phone\": \"+1 213 555 0184\",\n  \"membershipPlan\": \"MEMBERSHIP_PLAN_ID_HERE\",\n  \"startDate\": \"2026-08-14\",\n  \"expireDate\": \"2027-08-14\",\n  \"status\": \"ACTIVE\",\n  \"emergencyContact\": {\n    \"name\": \"John Thorne\",\n    \"phone\": \"+1 213 555 9999\",\n    \"relationship\": \"Brother\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/add-user",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "add-user"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Users / Members (Admin Datatable)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/all-users?page=1&limit=10&search=Marcus&role=MEMBER",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "all-users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "Marcus"
+                },
+                {
+                  "key": "role",
+                  "value": "MEMBER"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Current User Profile (/me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Member Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "USER_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Marcus Rivera\",\n  \"phone\": \"+1 305 123 4567\",\n  \"dateOfBirth\": \"1992-05-15\",\n  \"emergencyContact\": {\n    \"name\": \"Elena Rivera\",\n    \"phone\": \"+1 305 987 6543\",\n    \"relationship\": \"Spouse\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/update-my-profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "update-my-profile"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update User (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Marcus Thorne Updated\",\n  \"phone\": \"+1 213 555 8888\",\n  \"isActive\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "USER_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete User (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "USER_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Register Device / Web Push Token",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceToken\": \"SAMPLE_WEB_PUSH_DEVICE_TOKEN_12345\",\n  \"webPushSubscription\": {\n    \"endpoint\": \"https://fcm.googleapis.com/fcm/send/sample_endpoint\",\n    \"keys\": {\n      \"p256dh\": \"sample_p256dh_key\",\n      \"auth\": \"sample_auth_key\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/device-token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "device-token"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Child Profile (Parent)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Leo Thorne\",\n  \"dateOfBirth\": \"2018-05-12\",\n  \"gender\": \"Male\",\n  \"medicalNotes\": \"No allergies\",\n  \"emergencyContact\": {\n    \"name\": \"Marcus Thorne\",\n    \"phone\": \"+1 213 555 0184\",\n    \"relationship\": \"Father\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/add-child",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "add-child"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Children List (Parent)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/my-children",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "my-children"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Own Account",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/delete-own-account",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "delete-own-account"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete All Users (Super Admin Only)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Membership Plan Management",
+      "item": [
+        {
+          "name": "Create Membership Plan (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Premium\",\n  \"price\": 99,\n  \"monthlyClassLimit\": 12,\n  \"bookingWindowHours\": 72,\n  \"supportLevel\": \"VIP\",\n  \"features\": [\n    \"12 Group Classes\",\n    \"Private Training\",\n    \"Semi-Private Classes\",\n    \"Priority Booking\",\n    \"Pickup Service\",\n    \"Member Events\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/membership-plan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "membership-plan"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Membership Plans",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/membership-plan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "membership-plan"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Membership Plan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/membership-plan/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "membership-plan",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "PLAN_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Membership Plan (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 109,\n  \"monthlyClassLimit\": 14\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/membership-plan/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "membership-plan",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "PLAN_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Membership Plan (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/membership-plan/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "membership-plan",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "PLAN_ID_HERE"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. User Membership Subscriptions",
+      "item": [
+        {
+          "name": "Get My Membership Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/membership/my-membership",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "membership",
+                "my-membership"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Request Plan Change (Upgrade / Downgrade)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetPlanId\": \"TARGET_MEMBERSHIP_PLAN_ID_HERE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/membership/request-change",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "membership",
+                "request-change"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Request Membership Cancellation (30-Day Notice)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/membership/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "membership",
+                "cancel"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Class Category Management",
+      "item": [
+        {
+          "name": "Create Class Category (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Boxing\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/category",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "category"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Class Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/category",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "category"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Class Category (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Boxing & Conditioning\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/category/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "category",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "CATEGORY_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Class Category (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/category/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "category",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "CATEGORY_ID_HERE"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Class Scheduling & Management",
+      "item": [
+        {
+          "name": "Create Class Session (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Strength Training\",\n  \"categoryId\": \"CATEGORY_ID_HERE\",\n  \"coachId\": \"COACH_USER_ID_HERE\",\n  \"maxCapacity\": 16,\n  \"date\": \"2026-08-25\",\n  \"startTime\": \"9:00 AM\",\n  \"endTime\": \"10:00 AM\",\n  \"allowedPlans\": [\"Basic\", \"Standard\", \"Premium\"],\n  \"location\": \"Main Studio\",\n  \"coachNotes\": \"Please arrive 10 minutes early and bring your training shoes.\",\n  \"requirements\": [\n    \"Arrive 10 minutes early\",\n    \"Bring proper training equipment\",\n    \"Bring a water bottle\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/class",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "class"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Weekly Class Schedule",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/class/schedule?startDate=2026-08-24&endDate=2026-08-30",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "class",
+                "schedule"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2026-08-24"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-08-30"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Class Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/class/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "class",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "CLASS_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Class Session (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maxCapacity\": 20,\n  \"location\": \"Palestra Main Studio\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/class/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "class",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "CLASS_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Class Session (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/class/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "class",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "CLASS_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Enrolled Classes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/class/my-classes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "class",
+                "my-classes"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Class Booking & Roster",
+      "item": [
+        {
+          "name": "Enroll in Class",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"classId\": \"66e2c388274a108a4f...\",\n  \"childId\": \"OPTIONAL_CHILD_USER_ID_IF_PARENT\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/booking/enroll",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "enroll"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Unenroll from Class",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/booking/unenroll/:classId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "unenroll",
+                ":classId"
+              ],
+              "variable": [
+                {
+                  "key": "classId",
+                  "value": "CLASS_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Who's Going List (Public Class Modal)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/booking/whos-going/:classId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "whos-going",
+                ":classId"
+              ],
+              "variable": [
+                {
+                  "key": "classId",
+                  "value": "CLASS_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Class Roster (Admin / Coach)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/booking/roster/:classId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "booking",
+                "roster",
+                ":classId"
+              ],
+              "variable": [
+                {
+                  "key": "classId",
+                  "value": "CLASS_ID_HERE"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Admin Dashboard Analytics",
+      "item": [
+        {
+          "name": "Get Admin Metrics (KPI Stats)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/metrics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard",
+                "metrics"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Gym Settings",
+      "item": [
+        {
+          "name": "Get Gym Profile Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/setting/gym-info",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "setting",
+                "gym-info"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Gym Profile Info (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gymName\": \"Palestra Combat Club\",\n  \"address\": \"42 Warrior Ave, Miami, FL 33101\",\n  \"phone\": \"+1 (305) 555-0190\",\n  \"email\": \"admin@palestra.club\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/setting/gym-info",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "setting",
+                "gym-info"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. QR Code & Attendance Management",
+      "item": [
+        {
+          "name": "Get My Personal QR Code (Member / Coach)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/qr-code/my-qr",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "qr-code",
+                "my-qr"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Today's Daily QR Code (Admin Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/qr-code/today",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "qr-code",
+                "today"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Regenerate Today's QR Code (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/qr-code/regenerate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "qr-code",
+                "regenerate"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Scan Member/Coach Personal QR (Reception Scanner Check-In / Check-Out)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qrToken\": \"USER_PERSONAL_QR_TOKEN_HERE\",\n  \"bookingId\": \"OPTIONAL_CLASS_BOOKING_ID_HERE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/attendance/scan-user-qr",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "attendance",
+                "scan-user-qr"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Check-In / Check-Out via Scanned QR (Member / Coach)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"PASTE_TODAYS_SCANNED_QR_TOKEN_HERE\",\n  \"bookingId\": \"OPTIONAL_CLASS_BOOKING_ID_HERE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/attendance/check-in",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "attendance",
+                "check-in"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Attendance History (Member / Coach)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/attendance/my-history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "attendance",
+                "my-history"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Daily Attendance Logs (Admin Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/attendance/daily-logs?date=2026-08-24",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "attendance",
+                "daily-logs"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-08-24"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Stripe Payment & Recurring Subscriptions",
+      "item": [
+        {
+          "name": "Create Recurring Subscription Checkout Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"planId\": \"MEMBERSHIP_PLAN_ID_HERE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payment/checkout-session",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment",
+                "checkout-session"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify Stripe Checkout Session & Activate Membership",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payment/verify-session?session_id=CHECKOUT_SESSION_ID_HERE",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment",
+                "verify-session"
+              ],
+              "query": [
+                {
+                  "key": "session_id",
+                  "value": "CHECKOUT_SESSION_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cancel Active Recurring Subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payment/cancel-subscription",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment",
+                "cancel-subscription"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Stripe Webhook Event (System / Stripe)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "stripe-signature",
+                "value": "t=12345,v1=signature_hash_here"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"evt_test_webhook\",\n  \"type\": \"checkout.session.completed\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payment/webhook",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment",
+                "webhook"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Pickup & Drop-off Scheduling",
+      "item": [
+        {
+          "name": "Create Pickup/Drop-off Schedule (Parent)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"childId\": \"CHILD_USER_ID_HERE\",\n  \"classId\": \"CLASS_ID_HERE\",\n  \"type\": \"BOTH\",\n  \"scheduledDate\": \"2026-09-20\",\n  \"dropOffTime\": \"2026-09-20T09:30:00.000Z\",\n  \"pickUpTime\": \"2026-09-20T11:00:00.000Z\",\n  \"assignedPerson\": {\n    \"name\": \"Robert Smith\",\n    \"phone\": \"+1 305 555 1212\",\n    \"relationship\": \"Uncle\",\n    \"vehicleInfo\": \"Black Honda Civic (License: XYZ-1234)\"\n  },\n  \"notes\": \"Please ensure child has helmet before leaving.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pickup-dropoff",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pickup-dropoff"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Schedules (Parent / Admin / Coach)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pickup-dropoff?date=2026-09-20&status=SCHEDULED",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pickup-dropoff"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-09-20"
+                },
+                {
+                  "key": "status",
+                  "value": "SCHEDULED"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Schedule Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pickup-dropoff/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pickup-dropoff",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "SCHEDULE_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Schedule / Assigned Person (Parent)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignedPerson\": {\n    \"name\": \"Sarah Smith\",\n    \"phone\": \"+1 305 555 8899\",\n    \"relationship\": \"Mother\",\n    \"vehicleInfo\": \"White Toyota RAV4\"\n  },\n  \"notes\": \"Updated pickup driver to mother.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pickup-dropoff/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pickup-dropoff",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "SCHEDULE_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Schedule Status (Coach / Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"DROPPED_OFF\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pickup-dropoff/:id/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pickup-dropoff",
+                ":id",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "SCHEDULE_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Schedule (Parent / Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pickup-dropoff/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pickup-dropoff",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "SCHEDULE_ID_HERE"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "13. Notifications & Web Alerts",
+      "item": [
+        {
+          "name": "Get My Notifications Feed (Web Bell Icon)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notification/my-notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notification",
+                "my-notifications"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mark Single Notification as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notification/:id/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notification",
+                ":id",
+                "read"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "NOTIFICATION_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mark All Notifications as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notification/read-all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notification",
+                "read-all"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
 }

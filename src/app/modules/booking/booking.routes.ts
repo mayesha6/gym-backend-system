@@ -9,14 +9,14 @@ const router = Router();
 
 router.post(
   "/enroll",
-  checkAuth(Role.MEMBER, Role.USER),
+  checkAuth(Role.MEMBER, Role.USER, Role.PARENT),
   validateRequest(enrollClassZodSchema),
   BookingControllers.enrollInClass
 );
 
 router.post(
   "/unenroll/:classId",
-  checkAuth(Role.MEMBER, Role.USER),
+  checkAuth(Role.MEMBER, Role.USER, Role.PARENT),
   BookingControllers.unenrollFromClass
 );
 
