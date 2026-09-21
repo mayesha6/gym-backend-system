@@ -8,7 +8,7 @@ const router = Router();
 // Protected route to create recurring subscription checkout session
 router.post(
   "/checkout-session",
-  checkAuth(Role.MEMBER, Role.USER, Role.ADMIN, Role.SUPER_ADMIN),
+  checkAuth(Role.MEMBER, Role.USER, Role.PARENT, Role.ADMIN, Role.SUPER_ADMIN),
   PaymentControllers.createCheckoutSession
 );
 
@@ -18,7 +18,7 @@ router.get("/verify-session", PaymentControllers.verifySession);
 // Protected route to cancel recurring subscription
 router.post(
   "/cancel-subscription",
-  checkAuth(Role.MEMBER, Role.USER),
+  checkAuth(Role.MEMBER, Role.USER, Role.PARENT),
   PaymentControllers.cancelSubscription
 );
 

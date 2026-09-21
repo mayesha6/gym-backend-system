@@ -2,18 +2,48 @@ import httpStatus from "http-status-codes";
 import AppError from "../../errorHelpers/AppError";
 import { MembershipPlan } from "../membershipPlan/membershipPlan.model";
 import { User } from "../user/user.model";
+import { Role } from "../user/user.interface";
 import { MembershipStatus } from "./membership.interface";
 import { UserMembership } from "./membership.model";
 import mongoose from "mongoose";
 
-const getMyMembership = async (userId: string) => {
-  let membership = await UserMembership.findOne({ userId })
+const extractIdString = (id: any): string => {
+  if (!id) return "";
+  if (typeof id === "string") return id;
+  if (id._id) return id._id.toString();
+  if (typeof id.toString === "function") return id.toString();
+  return String(id);
+};
+
+const getMyMembership = async (userId: string, childId?: string) => {
+  const loggedInUser = await User.findById(userId);
+  let targetUserId = userId;
+
+  if (childId) {
+    const childUser = await User.findById(childId);
+    if (!childUser || childUser.isDeleted) {
+      throw new AppError(httpStatus.NOT_FOUND, "Child profile not found");
+    }
+
+    const childParentIdStr = extractIdString(childUser.parentId);
+    if (childParentIdStr && childParentIdStr !== userId) {
+      throw new AppError(httpStatus.FORBIDDEN, "You can only view membership for your own child");
+    }
+    targetUserId = childId;
+  } else if (loggedInUser?.role === Role.PARENT) {
+    const children = await User.find({ parentId: userId, isDeleted: { $ne: true } });
+    if (children.length > 0) {
+      targetUserId = children[0]._id.toString();
+    }
+  }
+
+  let membership = await UserMembership.findOne({ userId: targetUserId })
     .populate("currentPlanId")
     .populate("pendingPlanId");
 
   if (!membership) {
     // If no explicit subscription record exists yet, check if User has a currentPlan assigned
-    const user = await User.findById(userId);
+    const user = await User.findById(targetUserId);
     if (!user) {
       throw new AppError(httpStatus.NOT_FOUND, "User not found");
     }
@@ -33,7 +63,7 @@ const getMyMembership = async (userId: string) => {
     expiryDate.setDate(expiryDate.getDate() + 30);
 
     membership = await UserMembership.create({
-      userId: new mongoose.Types.ObjectId(userId),
+      userId: new mongoose.Types.ObjectId(targetUserId),
       currentPlanId: defaultPlan._id,
       status: MembershipStatus.ACTIVE,
       startDate: new Date(),
@@ -42,15 +72,15 @@ const getMyMembership = async (userId: string) => {
       lastAllowanceResetDate: new Date(),
     });
 
-    await User.findByIdAndUpdate(userId, { currentPlan: defaultPlan._id });
+    await User.findByIdAndUpdate(targetUserId, { currentPlan: defaultPlan._id });
     membership = await membership.populate("currentPlanId");
   }
 
   return membership;
 };
 
-const requestPlanChange = async (userId: string, targetPlanId: string) => {
-  const currentMembership = await getMyMembership(userId);
+const requestPlanChange = async (userId: string, targetPlanId: string, childId?: string) => {
+  const currentMembership = await getMyMembership(userId, childId);
   const targetPlan = await MembershipPlan.findById(targetPlanId);
   if (!targetPlan || !targetPlan.isActive) {
     throw new AppError(httpStatus.NOT_FOUND, "Target membership plan not found");
@@ -68,7 +98,7 @@ const requestPlanChange = async (userId: string, targetPlanId: string) => {
     currentMembership.pendingEffectiveDate = null;
 
     await currentMembership.save();
-    await User.findByIdAndUpdate(userId, { currentPlan: targetPlan._id });
+    await User.findByIdAndUpdate(currentMembership.userId, { currentPlan: targetPlan._id });
 
     return {
       type: "UPGRADE",
@@ -98,8 +128,8 @@ const requestPlanChange = async (userId: string, targetPlanId: string) => {
   }
 };
 
-const requestCancellation = async (userId: string) => {
-  const currentMembership = await getMyMembership(userId);
+const requestCancellation = async (userId: string, childId?: string) => {
+  const currentMembership = await getMyMembership(userId, childId);
 
   const noticeRequestedDate = new Date();
   const pendingEffectiveDate = new Date();

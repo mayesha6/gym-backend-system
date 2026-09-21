@@ -27,6 +27,13 @@ const enrollInClass = async (loggedInUserId: string, classId: string, childId?: 
 
   let targetUserId = loggedInUserId;
 
+  if (loggedInUser.role === Role.PARENT && !childId) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Parents cannot enroll in classes for themselves. Please select a child to enroll."
+    );
+  }
+
   if (childId) {
     const childUser = await User.findById(childId);
     if (!childUser || childUser.isDeleted) {
@@ -56,12 +63,11 @@ const enrollInClass = async (loggedInUserId: string, classId: string, childId?: 
   } else {
     if (
       loggedInUser.role !== Role.MEMBER &&
-      loggedInUser.role !== Role.USER &&
-      loggedInUser.role !== Role.PARENT
+      loggedInUser.role !== Role.USER
     ) {
       throw new AppError(
         httpStatus.FORBIDDEN,
-        "Only members or parents can enroll in classes"
+        "Only members can enroll in classes"
       );
     }
   }
@@ -167,6 +173,13 @@ const unenrollFromClass = async (loggedInUserId: string, classId: string, childI
   }
 
   let targetUserId = loggedInUserId;
+
+  if (loggedInUser.role === Role.PARENT && !childId) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Parents must specify a child to unenroll from a class."
+    );
+  }
 
   if (childId) {
     const childUser = await User.findById(childId);

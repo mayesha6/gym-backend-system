@@ -7,7 +7,8 @@ import { MembershipServices } from "./membership.services";
 
 const getMyMembership = catchAsync(async (req: Request, res: Response) => {
   const userToken = req.user as JwtPayload;
-  const result = await MembershipServices.getMyMembership(userToken.userId);
+  const childId = (req.query.childId as string) || (req.body?.childId as string);
+  const result = await MembershipServices.getMyMembership(userToken.userId, childId);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -18,8 +19,8 @@ const getMyMembership = catchAsync(async (req: Request, res: Response) => {
 
 const requestPlanChange = catchAsync(async (req: Request, res: Response) => {
   const userToken = req.user as JwtPayload;
-  const { targetPlanId } = req.body;
-  const result = await MembershipServices.requestPlanChange(userToken.userId, targetPlanId);
+  const { targetPlanId, childId } = req.body;
+  const result = await MembershipServices.requestPlanChange(userToken.userId, targetPlanId, childId);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -30,7 +31,8 @@ const requestPlanChange = catchAsync(async (req: Request, res: Response) => {
 
 const requestCancellation = catchAsync(async (req: Request, res: Response) => {
   const userToken = req.user as JwtPayload;
-  const result = await MembershipServices.requestCancellation(userToken.userId);
+  const childId = (req.query.childId as string) || (req.body?.childId as string);
+  const result = await MembershipServices.requestCancellation(userToken.userId, childId);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,

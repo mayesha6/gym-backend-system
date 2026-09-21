@@ -6,9 +6,9 @@ import { PaymentServices } from "./payment.services";
 
 const createCheckoutSession = catchAsync(async (req: Request, res: Response) => {
   const userId = (req.user as any)?.userId;
-  const { planId } = req.body;
+  const { planId, childId } = req.body;
 
-  const result = await PaymentServices.createSubscriptionCheckoutSession(userId, planId);
+  const result = await PaymentServices.createSubscriptionCheckoutSession(userId, planId, childId);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -42,8 +42,9 @@ const handleStripeWebhook = catchAsync(async (req: Request, res: Response) => {
 
 const cancelSubscription = catchAsync(async (req: Request, res: Response) => {
   const userId = (req.user as any)?.userId;
+  const childId = (req.query.childId as string) || (req.body?.childId as string);
 
-  const result = await PaymentServices.cancelSubscription(userId);
+  const result = await PaymentServices.cancelSubscription(userId, childId);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

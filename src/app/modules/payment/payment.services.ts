@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import AppError from "../../errorHelpers/AppError";
 import { envVars } from "../../config/env";
 import { User } from "../user/user.model";
-import { SubscriptionStatus } from "../user/user.interface";
+import { Role, SubscriptionStatus } from "../user/user.interface";
 import { MembershipPlan } from "../membershipPlan/membershipPlan.model";
 import { UserMembership } from "../membership/membership.model";
 import { MembershipStatus } from "../membership/membership.interface";
@@ -13,10 +13,58 @@ const stripe = new Stripe(envVars.STRIPE.STRIPE_SECRET_KEY, {
   apiVersion: "2025-02-24.acacia" as any,
 });
 
-const createSubscriptionCheckoutSession = async (userId: string, planId: string) => {
-  const user = await User.findById(userId);
-  if (!user || user.isDeleted) {
+const extractIdString = (id: any): string => {
+  if (!id) return "";
+  if (typeof id === "string") return id;
+  if (id._id) return id._id.toString();
+  if (typeof id.toString === "function") return id.toString();
+  return String(id);
+};
+
+const createSubscriptionCheckoutSession = async (
+  loggedInUserId: string,
+  planId: string,
+  childId?: string
+) => {
+  const loggedInUser = await User.findById(loggedInUserId);
+  if (!loggedInUser || loggedInUser.isDeleted) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  let targetUserId = loggedInUserId;
+
+  if (loggedInUser.role === Role.PARENT && !childId) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Parents cannot purchase a membership for themselves. Please select a child to purchase a membership for."
+    );
+  }
+
+  if (childId) {
+    const childUser = await User.findById(childId);
+    if (!childUser || childUser.isDeleted) {
+      throw new AppError(httpStatus.NOT_FOUND, "Child profile not found");
+    }
+
+    const childParentIdStr = extractIdString(childUser.parentId);
+    const loggedInUserIdStr = extractIdString(loggedInUserId);
+
+    if (
+      loggedInUser.role === Role.PARENT ||
+      loggedInUser.role === Role.USER ||
+      loggedInUser.role === Role.MEMBER
+    ) {
+      if (!childParentIdStr) {
+        childUser.parentId = loggedInUser._id;
+        await childUser.save();
+      } else if (childParentIdStr !== loggedInUserIdStr) {
+        throw new AppError(
+          httpStatus.FORBIDDEN,
+          "You can only purchase a membership for your own child"
+        );
+      }
+    }
+    targetUserId = childId;
   }
 
   const plan = await MembershipPlan.findById(planId);
@@ -24,8 +72,8 @@ const createSubscriptionCheckoutSession = async (userId: string, planId: string)
     throw new AppError(httpStatus.NOT_FOUND, "Membership plan not found or inactive");
   }
 
-  // 1. Ensure Stripe Customer exists on current Stripe Account
-  let customerId = user.stripeCustomerId;
+  // 1. Ensure Stripe Customer exists on current Stripe Account for the paying parent/user
+  let customerId = loggedInUser.stripeCustomerId;
   if (customerId) {
     try {
       const existingCustomer = await stripe.customers.retrieve(customerId);
@@ -39,15 +87,15 @@ const createSubscriptionCheckoutSession = async (userId: string, planId: string)
 
   if (!customerId) {
     const customer = await stripe.customers.create({
-      email: user.email,
-      name: user.name,
+      email: loggedInUser.email,
+      name: loggedInUser.name,
       metadata: {
-        userId: user._id.toString(),
+        userId: loggedInUser._id.toString(),
       },
     });
     customerId = customer.id;
-    user.stripeCustomerId = customerId;
-    await user.save();
+    loggedInUser.stripeCustomerId = customerId;
+    await loggedInUser.save();
   }
 
   // 2. Ensure Stripe Product and Recurring Price exist on current Stripe Account
@@ -87,7 +135,7 @@ const createSubscriptionCheckoutSession = async (userId: string, planId: string)
   const successUrl = `${envVars.FRONTEND_URL}/member/payment-success`;
   const cancelUrl = `${envVars.FRONTEND_URL}/member/payment-failed`;
 
-  // 3. Create Stripe Checkout Session in subscription mode (saves card for auto-debit)
+  // 3. Create Stripe Checkout Session in subscription mode
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     payment_method_types: ["card"],
@@ -99,13 +147,15 @@ const createSubscriptionCheckoutSession = async (userId: string, planId: string)
       },
     ],
     metadata: {
-      userId: user._id.toString(),
+      userId: targetUserId,
       planId: plan._id.toString(),
+      payerId: loggedInUser._id.toString(),
     },
     subscription_data: {
       metadata: {
-        userId: user._id.toString(),
+        userId: targetUserId,
         planId: plan._id.toString(),
+        payerId: loggedInUser._id.toString(),
       },
     },
     success_url: successUrl,
@@ -276,24 +326,49 @@ const handleStripeWebhook = async (rawBody: Buffer, signature: string) => {
   return { received: true };
 };
 
-const cancelSubscription = async (userId: string) => {
-  const user = await User.findById(userId);
-  if (!user) {
+const cancelSubscription = async (loggedInUserId: string, childId?: string) => {
+  const loggedInUser = await User.findById(loggedInUserId);
+  if (!loggedInUser || loggedInUser.isDeleted) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  if (user.stripeSubscriptionId) {
+  let targetUserId = loggedInUserId;
+
+  if (loggedInUser.role === Role.PARENT && !childId) {
+    const children = await User.find({ parentId: loggedInUser._id, isDeleted: { $ne: true } });
+    if (children.length > 0) {
+      targetUserId = children[0]._id.toString();
+    }
+  } else if (childId) {
+    const childUser = await User.findById(childId);
+    if (!childUser || childUser.isDeleted) {
+      throw new AppError(httpStatus.NOT_FOUND, "Child profile not found");
+    }
+    const childParentIdStr = extractIdString(childUser.parentId);
+    const loggedInUserIdStr = extractIdString(loggedInUserId);
+    if (childParentIdStr && childParentIdStr !== loggedInUserIdStr) {
+      throw new AppError(httpStatus.FORBIDDEN, "You can only cancel membership for your own child");
+    }
+    targetUserId = childId;
+  }
+
+  const targetUser = await User.findById(targetUserId);
+  if (!targetUser) {
+    throw new AppError(httpStatus.NOT_FOUND, "Target user profile not found");
+  }
+
+  if (targetUser.stripeSubscriptionId) {
     try {
-      await stripe.subscriptions.cancel(user.stripeSubscriptionId);
+      await stripe.subscriptions.cancel(targetUser.stripeSubscriptionId);
     } catch (err: any) {
       // Ignore if already canceled on Stripe
     }
   }
 
-  user.subscriptionStatus = SubscriptionStatus.CANCELED;
-  await user.save();
+  targetUser.subscriptionStatus = SubscriptionStatus.CANCELED;
+  await targetUser.save();
 
-  const userMembership = await UserMembership.findOne({ userId: user._id });
+  const userMembership = await UserMembership.findOne({ userId: targetUser._id });
   if (userMembership) {
     userMembership.status = MembershipStatus.CANCELLED;
     await userMembership.save();
