@@ -5,7 +5,9 @@ import { IClassSession } from "../class/class.interface";
 import { ClassSession } from "../class/class.model";
 import { MembershipServices } from "../membership/membership.services";
 import { MembershipPlan } from "../membershipPlan/membershipPlan.model";
-import { Role } from "../user/user.interface";
+import { MembershipStatus } from "../membership/membership.interface";
+import { UserMembership } from "../membership/membership.model";
+import { Role, SubscriptionStatus } from "../user/user.interface";
 import { User } from "../user/user.model";
 import { BookingStatus } from "./booking.interface";
 import { ClassBooking } from "./booking.model";
@@ -138,8 +140,49 @@ const enrollInClass = async (loggedInUserId: string, classId: string, childId?: 
     }
   }
 
-  // 5. Check User Membership Allowance
-  const membership = await MembershipServices.getMyMembership(targetUserId);
+  // 5. Check User Active Subscription & Membership Allowance
+  const targetUser = await User.findById(targetUserId);
+  if (!targetUser || targetUser.isDeleted) {
+    throw new AppError(httpStatus.NOT_FOUND, "User profile not found");
+  }
+
+  if (
+    targetUser.subscriptionStatus !== SubscriptionStatus.ACTIVE ||
+    !targetUser.currentPlan
+  ) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      childId
+        ? "This child does not have an active membership plan. Please purchase a membership plan first."
+        : "You do not have an active membership plan. Please purchase a membership plan first."
+    );
+  }
+
+  const membership = await UserMembership.findOne({
+    userId: targetUserId,
+    status: { $in: [MembershipStatus.ACTIVE, MembershipStatus.PENDING_CHANGE] },
+  }).populate("currentPlanId");
+
+  if (
+    !membership ||
+    (membership.status !== MembershipStatus.ACTIVE &&
+      membership.status !== MembershipStatus.PENDING_CHANGE)
+  ) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      childId
+        ? "This child's membership plan is not active. Please purchase or renew a membership plan."
+        : "Your membership plan is not active. Please purchase or renew a membership plan."
+    );
+  }
+
+  if (membership.expiryDate && new Date(membership.expiryDate) < new Date()) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Membership plan has expired. Please renew the membership to enroll in classes."
+    );
+  }
+
   const plan = await MembershipPlan.findById(membership.currentPlanId);
   if (plan && membership.classesUsedThisMonth >= plan.monthlyClassLimit) {
     throw new AppError(

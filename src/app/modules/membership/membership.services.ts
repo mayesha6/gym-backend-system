@@ -2,7 +2,7 @@ import httpStatus from "http-status-codes";
 import AppError from "../../errorHelpers/AppError";
 import { MembershipPlan } from "../membershipPlan/membershipPlan.model";
 import { User } from "../user/user.model";
-import { Role } from "../user/user.interface";
+import { Role, SubscriptionStatus } from "../user/user.interface";
 import { MembershipStatus } from "./membership.interface";
 import { UserMembership } from "./membership.model";
 import mongoose from "mongoose";
@@ -42,38 +42,34 @@ const getMyMembership = async (userId: string, childId?: string) => {
     .populate("pendingPlanId");
 
   if (!membership) {
-    // If no explicit subscription record exists yet, check if User has a currentPlan assigned
     const user = await User.findById(targetUserId);
     if (!user) {
       throw new AppError(httpStatus.NOT_FOUND, "User not found");
     }
 
-    let defaultPlan = await MembershipPlan.findOne({ isActive: true }).sort({ price: 1 });
-    if (!defaultPlan) {
-      defaultPlan = await MembershipPlan.create({
-        title: "Basic",
-        price: 49,
-        monthlyClassLimit: 4,
-        bookingWindowHours: 24,
-        features: ["Group Classes"],
+    if (user.subscriptionStatus === SubscriptionStatus.ACTIVE && user.currentPlan) {
+      const expiryDate = user.subscriptionEndDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      membership = await UserMembership.create({
+        userId: new mongoose.Types.ObjectId(targetUserId),
+        currentPlanId: user.currentPlan,
+        status: MembershipStatus.ACTIVE,
+        startDate: user.subscriptionStartDate || new Date(),
+        expiryDate,
+        classesUsedThisMonth: 0,
+        lastAllowanceResetDate: new Date(),
+      });
+      membership = await membership.populate("currentPlanId");
+    } else {
+      membership = await UserMembership.create({
+        userId: new mongoose.Types.ObjectId(targetUserId),
+        currentPlanId: null as any,
+        status: MembershipStatus.CANCELLED,
+        startDate: new Date(),
+        expiryDate: new Date(),
+        classesUsedThisMonth: 0,
+        lastAllowanceResetDate: new Date(),
       });
     }
-
-    const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + 30);
-
-    membership = await UserMembership.create({
-      userId: new mongoose.Types.ObjectId(targetUserId),
-      currentPlanId: defaultPlan._id,
-      status: MembershipStatus.ACTIVE,
-      startDate: new Date(),
-      expiryDate,
-      classesUsedThisMonth: 0,
-      lastAllowanceResetDate: new Date(),
-    });
-
-    await User.findByIdAndUpdate(targetUserId, { currentPlan: defaultPlan._id });
-    membership = await membership.populate("currentPlanId");
   }
 
   return membership;
