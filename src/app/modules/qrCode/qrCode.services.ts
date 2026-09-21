@@ -6,13 +6,47 @@ import { DailyQRCode } from "./qrCode.model";
 import { IDailyQRCode } from "./qrCode.interface";
 import { envVars } from "../../config/env";
 import { User } from "../user/user.model";
+import { Role } from "../user/user.interface";
 import AppError from "../../errorHelpers/AppError";
 
+const extractIdString = (id: any): string => {
+  if (!id) return "";
+  if (typeof id === "string") return id;
+  if (id._id) return id._id.toString();
+  if (typeof id.toString === "function") return id.toString();
+  return String(id);
+};
+
 /**
- * Generate personal QR code for a specific user (Member or Coach).
+ * Generate personal QR code for a specific user (Member, Child, or Coach).
  */
-const generateUserPersonalQR = async (userId: string) => {
-  const user = await User.findById(userId).populate("currentPlan");
+const generateUserPersonalQR = async (loggedInUserId: string, childId?: string) => {
+  const loggedInUser = await User.findById(loggedInUserId);
+  if (!loggedInUser || loggedInUser.isDeleted) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  let targetUserId = loggedInUserId;
+
+  if (childId) {
+    const childUser = await User.findById(childId);
+    if (!childUser || childUser.isDeleted) {
+      throw new AppError(httpStatus.NOT_FOUND, "Child profile not found");
+    }
+
+    const childParentIdStr = extractIdString(childUser.parentId);
+    if (childParentIdStr && childParentIdStr !== loggedInUserId) {
+      throw new AppError(httpStatus.FORBIDDEN, "You can only generate QR code for your own child");
+    }
+    targetUserId = childId;
+  } else if (loggedInUser.role === Role.PARENT) {
+    const children = await User.find({ parentId: loggedInUserId, isDeleted: { $ne: true } });
+    if (children.length > 0) {
+      targetUserId = children[0]._id.toString();
+    }
+  }
+
+  const user = await User.findById(targetUserId).populate("currentPlan");
   if (!user || user.isDeleted) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }

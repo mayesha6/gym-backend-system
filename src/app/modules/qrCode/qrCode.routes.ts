@@ -5,10 +5,10 @@ import { QRCodeControllers } from "./qrCode.controller";
 
 const router = Router();
 
-// Logged in User (Member, Coach, Admin) can get their own personal QR code
+// Logged in User (Member, Parent, User, Coach, Admin) can get their own personal QR code
 router.get(
   "/my-qr",
-  checkAuth(Role.MEMBER, Role.COACH, Role.ADMIN, Role.SUPER_ADMIN),
+  checkAuth(Role.MEMBER, Role.PARENT, Role.USER, Role.COACH, Role.ADMIN, Role.SUPER_ADMIN),
   QRCodeControllers.getMyQRCode
 );
 

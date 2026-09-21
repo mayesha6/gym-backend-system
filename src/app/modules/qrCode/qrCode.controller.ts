@@ -7,7 +7,8 @@ import { QRCodeServices } from "./qrCode.services";
 
 const getMyQRCode = catchAsync(async (req: Request, res: Response) => {
   const user = req.user as JwtPayload;
-  const result = await QRCodeServices.generateUserPersonalQR(user.userId);
+  const childId = (req.query.childId as string) || (req.body?.childId as string);
+  const result = await QRCodeServices.generateUserPersonalQR(user.userId, childId);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
