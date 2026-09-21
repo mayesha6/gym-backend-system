@@ -13,11 +13,124 @@ import { IsActive, Role, SubscriptionStatus } from "../user/user.interface";
 import { User } from "../user/user.model";
 import { AttendanceStatus, IAttendance, VerificationType } from "./attendance.interface";
 import { Attendance } from "./attendance.model";
+import { PickupDropoff } from "../pickupDropoff/pickupDropoff.model";
+import { PickupDropoffStatus } from "../pickupDropoff/pickupDropoff.interface";
+import { sendWebPushNotification } from "../../utils/pushNotification";
+import { NotificationType } from "../notification/notification.interface";
 
 /**
- * Gym Scanner / Reception Camera scans a User's (Member/Coach) Personal QR Code to mark Attendance.
+ * Sync Pickup / Dropoff schedule status upon QR scan (Check-in or Check-out).
+ * - Check-in (1st scan): Updates SCHEDULED -> DROPPED_OFF
+ * - Check-out (2nd scan): Updates DROPPED_OFF / READY_FOR_PICKUP -> COMPLETED
+ */
+const syncPickupDropoffStatusOnScan = async (
+  userId: Types.ObjectId,
+  userRole: Role,
+  isCheckOut: boolean
+) => {
+  try {
+    let parentId: Types.ObjectId | null = null;
+    let childId: Types.ObjectId | null = null;
+
+    if (userRole === Role.PARENT) {
+      parentId = userId;
+      const child = await User.findOne({ parentId: userId, isDeleted: { $ne: true } });
+      if (child) {
+        childId = child._id as Types.ObjectId;
+      }
+    } else {
+      childId = userId;
+      const user = await User.findById(userId);
+      if (user && user.parentId) {
+        parentId = user.parentId as Types.ObjectId;
+      }
+    }
+
+    const startOfDay = dayjs().startOf("day").toDate();
+    const endOfDay = dayjs().endOf("day").toDate();
+
+    const queryOr: any[] = [];
+    if (parentId) queryOr.push({ parentId });
+    if (childId) queryOr.push({ childId });
+
+    if (queryOr.length === 0) return null;
+
+    if (!isCheckOut) {
+      // CHECK-IN (Drop-off): Update SCHEDULED -> DROPPED_OFF
+      const schedule = await PickupDropoff.findOne({
+        $or: queryOr,
+        scheduledDate: { $gte: startOfDay, $lte: endOfDay },
+        status: PickupDropoffStatus.SCHEDULED,
+      }).populate("childId", "name");
+
+      if (schedule) {
+        schedule.status = PickupDropoffStatus.DROPPED_OFF;
+        schedule.dropOffTime = new Date();
+        await schedule.save();
+
+        const childName = (schedule.childId as any)?.name || "Your child";
+        const targetParentId = schedule.parentId
+          ? schedule.parentId.toString()
+          : parentId
+          ? parentId.toString()
+          : null;
+
+        if (targetParentId) {
+          await sendWebPushNotification({
+            userId: targetParentId,
+            title: "Child Dropped Off at Gym",
+            body: `${childName} has arrived and safely dropped off at the gym!`,
+            type: NotificationType.STATUS_UPDATE,
+            link: `/dashboard/pickup-dropoff/${schedule._id}`,
+            metadata: { scheduleId: schedule._id, newStatus: PickupDropoffStatus.DROPPED_OFF },
+          });
+        }
+        return schedule;
+      }
+    } else {
+      // CHECK-OUT (Pick-up): Update DROPPED_OFF / READY_FOR_PICKUP -> COMPLETED
+      const schedule = await PickupDropoff.findOne({
+        $or: queryOr,
+        scheduledDate: { $gte: startOfDay, $lte: endOfDay },
+        status: { $in: [PickupDropoffStatus.DROPPED_OFF, PickupDropoffStatus.READY_FOR_PICKUP] },
+      }).populate("childId", "name");
+
+      if (schedule) {
+        schedule.status = PickupDropoffStatus.COMPLETED;
+        schedule.pickUpTime = new Date();
+        await schedule.save();
+
+        const childName = (schedule.childId as any)?.name || "Your child";
+        const targetParentId = schedule.parentId
+          ? schedule.parentId.toString()
+          : parentId
+          ? parentId.toString()
+          : null;
+
+        if (targetParentId) {
+          await sendWebPushNotification({
+            userId: targetParentId,
+            title: "Child Picked Up from Gym",
+            body: `${childName} has been picked up successfully. Have a great day!`,
+            type: NotificationType.STATUS_UPDATE,
+            link: `/dashboard/pickup-dropoff/${schedule._id}`,
+            metadata: { scheduleId: schedule._id, newStatus: PickupDropoffStatus.COMPLETED },
+          });
+        }
+        return schedule;
+      }
+    }
+  } catch (err) {
+    // Fail-safe
+  }
+  return null;
+};
+
+/**
+ * Gym Scanner / Reception Camera scans a User's (Member/Coach/Parent) Personal QR Code to mark Attendance.
  * - Coach: Bypasses subscription & membership checks.
  * - Member: Requires ACTIVE subscription, valid expiry, and remaining monthly class allowance.
+ * - Parent: Resolves parent's child profile to mark attendance & update drop-off/pickup status.
  */
 const scanUserQRAndMarkAttendance = async (
   qrToken: string,
@@ -28,23 +141,33 @@ const scanUserQRAndMarkAttendance = async (
   const userObjectId = new Types.ObjectId(userId);
 
   // 2. Fetch User & verify active account
-  const user = await User.findById(userObjectId).populate("currentPlan");
-  if (!user || user.isDeleted) {
+  const scannedUser = await User.findById(userObjectId).populate("currentPlan");
+  if (!scannedUser || scannedUser.isDeleted) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found or account deleted.");
   }
 
-  if (user.isActive !== IsActive.ACTIVE) {
+  if (scannedUser.isActive !== IsActive.ACTIVE) {
     throw new AppError(
       httpStatus.FORBIDDEN,
-      `User account status is ${user.isActive || "INACTIVE"}. Cannot mark attendance.`
+      `User account status is ${scannedUser.isActive || "INACTIVE"}. Cannot mark attendance.`
     );
   }
 
+  let user = scannedUser;
+  if (scannedUser.role === Role.PARENT) {
+    const child = await User.findOne({ parentId: scannedUser._id, isDeleted: { $ne: true } }).populate("currentPlan");
+    if (child) {
+      user = child;
+    }
+  }
+
+  const targetUserIdStr = user._id.toString();
+  const targetUserObjectId = user._id as Types.ObjectId;
   const todayStr = dayjs().format("YYYY-MM-DD");
 
   // 3. Check if attendance already exists for today (Check-Out / Re-scan scenario)
   const existingAttendance = await Attendance.findOne({
-    userId: userObjectId,
+    userId: targetUserObjectId,
     date: todayStr,
   });
 
@@ -56,7 +179,7 @@ const scanUserQRAndMarkAttendance = async (
     if (bookingId) {
       const booking = await ClassBooking.findOne({
         _id: new Types.ObjectId(bookingId),
-        memberId: userObjectId,
+        memberId: targetUserObjectId,
       });
 
       if (booking && booking.status !== BookingStatus.ATTENDED) {
@@ -72,6 +195,13 @@ const scanUserQRAndMarkAttendance = async (
 
     await existingAttendance.save();
 
+    // Sync pickup/dropoff status for Check-Out (COMPLETED)
+    const updatedSchedule = await syncPickupDropoffStatusOnScan(
+      scannedUser._id as Types.ObjectId,
+      scannedUser.role,
+      true
+    );
+
     return {
       attendance: existingAttendance,
       isCheckOut: true,
@@ -85,6 +215,7 @@ const scanUserQRAndMarkAttendance = async (
         subscriptionStatus: user.subscriptionStatus,
         currentPlan: user.currentPlan,
       },
+      pickupDropoffSchedule: updatedSchedule,
     };
   }
 
@@ -102,13 +233,13 @@ const scanUserQRAndMarkAttendance = async (
     }
 
     let userMembership = await UserMembership.findOne({
-      userId: userObjectId,
+      userId: targetUserObjectId,
       status: { $in: [MembershipStatus.ACTIVE, MembershipStatus.PENDING_CHANGE] },
     }).populate("currentPlanId");
 
     if (!userMembership) {
       try {
-        userMembership = await MembershipServices.getMyMembership(userId);
+        userMembership = await MembershipServices.getMyMembership(targetUserIdStr);
       } catch (err) {
         // Fallback silently if initialization fails
       }
@@ -144,7 +275,7 @@ const scanUserQRAndMarkAttendance = async (
     if (bookingId) {
       const booking = await ClassBooking.findOne({
         _id: new Types.ObjectId(bookingId),
-        memberId: userObjectId,
+        memberId: targetUserObjectId,
       });
 
       if (!booking) {
@@ -172,7 +303,7 @@ const scanUserQRAndMarkAttendance = async (
 
   // 5. Create Attendance Record for 1st check-in of the day
   const newAttendance = await Attendance.create({
-    userId: userObjectId,
+    userId: targetUserObjectId,
     role: user.role,
     date: todayStr,
     checkInTime: new Date(),
@@ -183,6 +314,13 @@ const scanUserQRAndMarkAttendance = async (
     bookingId: bookingIdToSave,
     classId: classIdToSave,
   });
+
+  // Sync pickup/dropoff status for Check-In (DROPPED_OFF)
+  const updatedSchedule = await syncPickupDropoffStatusOnScan(
+    scannedUser._id as Types.ObjectId,
+    scannedUser.role,
+    false
+  );
 
   return {
     attendance: newAttendance,
@@ -197,6 +335,7 @@ const scanUserQRAndMarkAttendance = async (
       subscriptionStatus: user.subscriptionStatus,
       currentPlan: user.currentPlan,
     },
+    pickupDropoffSchedule: updatedSchedule,
   };
 };
 
@@ -249,6 +388,7 @@ const markAttendanceViaQR = async (
     }
 
     await existingAttendance.save();
+    await syncPickupDropoffStatusOnScan(userObjectId, userRole, true);
     return { attendance: existingAttendance, isCheckOut: true };
   }
 
@@ -341,6 +481,8 @@ const markAttendanceViaQR = async (
     bookingId: bookingIdToSave,
     classId: classIdToSave,
   });
+
+  await syncPickupDropoffStatusOnScan(userObjectId, userRole, false);
 
   return { attendance: newAttendance, isCheckOut: false };
 };
