@@ -243,6 +243,72 @@ const getMyChildren = async (parentId: string) => {
   return children;
 };
 
+const updateChild = async (
+  parentId: string,
+  childId: string,
+  userRole: string,
+  payload: Partial<IUser>
+) => {
+  const child = await User.findById(childId);
+  if (!child || child.isDeleted) {
+    throw new AppError(httpStatus.NOT_FOUND, "Child profile not found");
+  }
+
+  const childParentIdStr = child.parentId ? child.parentId.toString() : "";
+  if (
+    userRole !== Role.ADMIN &&
+    userRole !== Role.SUPER_ADMIN &&
+    childParentIdStr !== parentId
+  ) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You can only update your own child's profile"
+    );
+  }
+
+  delete payload.parentId;
+  delete payload.memberId;
+  delete payload.role;
+
+  if (payload.dateOfBirth) {
+    payload.dateOfBirth = new Date(payload.dateOfBirth);
+  }
+
+  const updatedChild = await User.findByIdAndUpdate(childId, payload, {
+    new: true,
+    runValidators: true,
+  }).select("-password -auths");
+
+  return updatedChild;
+};
+
+const deleteChild = async (parentId: string, childId: string, userRole: string) => {
+  const child = await User.findById(childId);
+  if (!child || child.isDeleted) {
+    throw new AppError(httpStatus.NOT_FOUND, "Child profile not found");
+  }
+
+  const childParentIdStr = child.parentId ? child.parentId.toString() : "";
+  if (
+    userRole !== Role.ADMIN &&
+    userRole !== Role.SUPER_ADMIN &&
+    childParentIdStr !== parentId
+  ) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You can only delete your own child's profile"
+    );
+  }
+
+  const deletedChild = await User.findByIdAndUpdate(
+    childId,
+    { isDeleted: true, isActive: IsActive.INACTIVE },
+    { new: true }
+  ).select("-password -auths");
+
+  return deletedChild;
+};
+
 export const UserServices = {
   createUser,
   addMember,
@@ -257,4 +323,6 @@ export const UserServices = {
   updateWebPushToken,
   addChild,
   getMyChildren,
+  updateChild,
+  deleteChild,
 };

@@ -54,3 +54,16 @@ export const addChildZodSchema = z.object({
   }).optional()
 });
 
+export const updateChildZodSchema = z.object({
+  name: z.string().min(2).optional(),
+  dateOfBirth: z.string().optional(),
+  picture: z.any().optional(),
+  gender: z.string().optional(),
+  medicalNotes: z.string().optional(),
+  emergencyContact: z.object({
+    name: z.string().optional(),
+    phone: z.string().optional(),
+    relationship: z.string().optional()
+  }).optional()
+});
+

@@ -3,7 +3,7 @@ import { checkAuth } from "../../middlewares/checkAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
 import { UserControllers } from "./user.controller";
 import { Role } from "./user.interface";
-import { addChildZodSchema, addMemberZodSchema, updateUserZodSchema } from "./user.validation";
+import { addChildZodSchema, addMemberZodSchema, updateChildZodSchema, updateUserZodSchema } from "./user.validation";
 import { parseFormDataMiddleware } from "../../middlewares/parseFormDataMiddleware";
 import { FileTypes, upload } from "../../config/S3Client.config";
 
@@ -53,6 +53,25 @@ router.get(
   "/my-children",
   checkAuth(Role.PARENT, Role.SUPER_ADMIN, Role.ADMIN, Role.USER),
   UserControllers.getMyChildren
+);
+
+router.patch(
+  "/child/:childId",
+  checkAuth(Role.PARENT, Role.SUPER_ADMIN, Role.ADMIN, Role.USER),
+  upload({
+    folder: "UserImage",
+    fileType: FileTypes.IMAGE,
+    maxCount: 1,
+  }),
+  parseFormDataMiddleware,
+  validateRequest(updateChildZodSchema),
+  UserControllers.updateChild
+);
+
+router.delete(
+  "/child/:childId",
+  checkAuth(Role.PARENT, Role.SUPER_ADMIN, Role.ADMIN, Role.USER),
+  UserControllers.deleteChild
 );
 
 router.get(

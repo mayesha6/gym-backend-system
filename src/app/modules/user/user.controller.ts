@@ -161,6 +161,41 @@ const getMyChildren = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateChild = catchAsync(async (req: Request, res: Response) => {
+  const userToken = req.user as JwtPayload;
+  const { childId } = req.params;
+  const result = await UserServices.updateChild(
+    userToken.userId,
+    childId,
+    userToken.role,
+    req.body
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Child profile updated successfully",
+    data: result,
+  });
+});
+
+const deleteChild = catchAsync(async (req: Request, res: Response) => {
+  const userToken = req.user as JwtPayload;
+  const { childId } = req.params;
+  const result = await UserServices.deleteChild(
+    userToken.userId,
+    childId,
+    userToken.role
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Child profile deleted successfully",
+    data: result,
+  });
+});
+
 export const UserControllers = {
   createUser,
   addMember,
@@ -175,4 +210,6 @@ export const UserControllers = {
   updateWebPushToken,
   addChild,
   getMyChildren,
+  updateChild,
+  deleteChild,
 };
