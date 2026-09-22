@@ -35,8 +35,22 @@ const generateUserPersonalQR = async (loggedInUserId: string, childId?: string) 
     }
 
     const childParentIdStr = extractIdString(childUser.parentId);
-    if (childParentIdStr && childParentIdStr !== loggedInUserId) {
-      throw new AppError(httpStatus.FORBIDDEN, "You can only generate QR code for your own child");
+    const loggedInUserIdStr = extractIdString(loggedInUserId);
+
+    if (
+      loggedInUser.role === Role.PARENT ||
+      loggedInUser.role === Role.USER ||
+      loggedInUser.role === Role.MEMBER
+    ) {
+      if (!childParentIdStr) {
+        childUser.parentId = loggedInUser._id as any;
+        await childUser.save();
+      } else if (childParentIdStr !== loggedInUserIdStr) {
+        throw new AppError(
+          httpStatus.FORBIDDEN,
+          "You can only generate QR code for your own child"
+        );
+      }
     }
     targetUserId = childId;
   } else if (loggedInUser.role === Role.PARENT) {
