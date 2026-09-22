@@ -26,7 +26,8 @@ const getMyMembership = async (userId: string, childId?: string) => {
     }
 
     const childParentIdStr = extractIdString(childUser.parentId);
-    if (childParentIdStr && childParentIdStr !== userId) {
+    const loggedInUserIdStr = extractIdString(userId);
+    if (childParentIdStr && childParentIdStr !== loggedInUserIdStr) {
       throw new AppError(httpStatus.FORBIDDEN, "You can only view membership for your own child");
     }
     targetUserId = childId;

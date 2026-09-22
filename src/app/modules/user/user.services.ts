@@ -255,10 +255,11 @@ const updateChild = async (
   }
 
   const childParentIdStr = child.parentId ? child.parentId.toString() : "";
+  const parentIdStr = String(parentId || "");
   if (
     userRole !== Role.ADMIN &&
     userRole !== Role.SUPER_ADMIN &&
-    childParentIdStr !== parentId
+    childParentIdStr !== parentIdStr
   ) {
     throw new AppError(
       httpStatus.FORBIDDEN,
@@ -289,10 +290,11 @@ const deleteChild = async (parentId: string, childId: string, userRole: string) 
   }
 
   const childParentIdStr = child.parentId ? child.parentId.toString() : "";
+  const parentIdStr = String(parentId || "");
   if (
     userRole !== Role.ADMIN &&
     userRole !== Role.SUPER_ADMIN &&
-    childParentIdStr !== parentId
+    childParentIdStr !== parentIdStr
   ) {
     throw new AppError(
       httpStatus.FORBIDDEN,
