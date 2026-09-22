@@ -6,6 +6,7 @@ import { envVars } from "./app/config/env";
 import { connectRedis } from "./app/config/redis.config";
 import { seedSuperAdmin } from "./app/utils/seedSuperAdmin";
 import { initReminderCron } from "./app/cron/reminderCron";
+import { initScheduleStatusCron } from "./app/cron/scheduleStatusCron";
 
 let server: Server;
 
@@ -27,6 +28,7 @@ const startServer = async () => {
     await startServer();
     await seedSuperAdmin();
     initReminderCron();
+    initScheduleStatusCron();
 })();
 
 process.on("SIGTERM", () => {

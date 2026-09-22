@@ -12,6 +12,7 @@ export enum PickupDropoffStatus {
   READY_FOR_PICKUP = "READY_FOR_PICKUP",
   COMPLETED = "COMPLETED",
   CANCELLED = "CANCELLED",
+  ABSENT = "ABSENT",
 }
 
 export interface IAssignedPerson {
