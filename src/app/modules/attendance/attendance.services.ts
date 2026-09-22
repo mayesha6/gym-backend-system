@@ -49,19 +49,23 @@ const syncPickupDropoffStatusOnScan = async (
     const startOfDay = dayjs().startOf("day").toDate();
     const endOfDay = dayjs().endOf("day").toDate();
 
-    const queryOr: any[] = [];
-    if (parentId) queryOr.push({ parentId });
-    if (childId) queryOr.push({ childId });
+    const queryFilter: any = {
+      scheduledDate: { $gte: startOfDay, $lte: endOfDay },
+    };
 
-    if (queryOr.length === 0) return null;
+    if (childId) {
+      queryFilter.childId = childId;
+    } else if (parentId) {
+      queryFilter.parentId = parentId;
+    } else {
+      return null;
+    }
 
     if (!isCheckOut) {
       // CHECK-IN (Drop-off): Update SCHEDULED -> DROPPED_OFF
-      const schedule = await PickupDropoff.findOne({
-        $or: queryOr,
-        scheduledDate: { $gte: startOfDay, $lte: endOfDay },
-        status: PickupDropoffStatus.SCHEDULED,
-      }).populate("childId", "name");
+      queryFilter.status = PickupDropoffStatus.SCHEDULED;
+
+      const schedule = await PickupDropoff.findOne(queryFilter).populate("childId", "name");
 
       if (schedule) {
         schedule.status = PickupDropoffStatus.DROPPED_OFF;
@@ -89,11 +93,11 @@ const syncPickupDropoffStatusOnScan = async (
       }
     } else {
       // CHECK-OUT (Pick-up): Update DROPPED_OFF / READY_FOR_PICKUP -> COMPLETED
-      const schedule = await PickupDropoff.findOne({
-        $or: queryOr,
-        scheduledDate: { $gte: startOfDay, $lte: endOfDay },
-        status: { $in: [PickupDropoffStatus.DROPPED_OFF, PickupDropoffStatus.READY_FOR_PICKUP] },
-      }).populate("childId", "name");
+      queryFilter.status = {
+        $in: [PickupDropoffStatus.DROPPED_OFF, PickupDropoffStatus.READY_FOR_PICKUP],
+      };
+
+      const schedule = await PickupDropoff.findOne(queryFilter).populate("childId", "name");
 
       if (schedule) {
         schedule.status = PickupDropoffStatus.COMPLETED;
@@ -197,8 +201,8 @@ const scanUserQRAndMarkAttendance = async (
 
     // Sync pickup/dropoff status for Check-Out (COMPLETED)
     const updatedSchedule = await syncPickupDropoffStatusOnScan(
-      scannedUser._id as Types.ObjectId,
-      scannedUser.role,
+      user._id as Types.ObjectId,
+      user.role,
       true
     );
 
@@ -317,8 +321,8 @@ const scanUserQRAndMarkAttendance = async (
 
   // Sync pickup/dropoff status for Check-In (DROPPED_OFF)
   const updatedSchedule = await syncPickupDropoffStatusOnScan(
-    scannedUser._id as Types.ObjectId,
-    scannedUser.role,
+    user._id as Types.ObjectId,
+    user.role,
     false
   );
 
