@@ -26,7 +26,7 @@ router.post(
 // Member/Coach can view their own attendance history
 router.get(
   "/my-history",
-  checkAuth(Role.MEMBER, Role.COACH, Role.ADMIN, Role.SUPER_ADMIN),
+  checkAuth(Role.MEMBER, Role.PARENT, Role.USER, Role.COACH, Role.ADMIN, Role.SUPER_ADMIN),
   AttendanceControllers.getMyHistory
 );
 

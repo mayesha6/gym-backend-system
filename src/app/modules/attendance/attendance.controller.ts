@@ -47,7 +47,8 @@ const markAttendance = catchAsync(async (req: Request, res: Response) => {
 
 const getMyHistory = catchAsync(async (req: Request, res: Response) => {
   const user = req.user as JwtPayload;
-  const result = await AttendanceServices.getMyAttendanceHistory(user.userId);
+  const childId = req.query.childId as string | undefined;
+  const result = await AttendanceServices.getMyAttendanceHistory(user.userId, childId);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

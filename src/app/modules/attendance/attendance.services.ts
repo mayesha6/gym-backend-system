@@ -491,11 +491,55 @@ const markAttendanceViaQR = async (
   return { attendance: newAttendance, isCheckOut: false };
 };
 
+const extractIdString = (id: any): string => {
+  if (!id) return "";
+  if (typeof id === "string") return id;
+  if (id._id) return id._id.toString();
+  if (typeof id.toString === "function") return id.toString();
+  return String(id);
+};
+
 /**
- * Get attendance history for logged-in user.
+ * Get attendance history for logged-in user or specific child.
  */
-const getMyAttendanceHistory = async (userId: string) => {
-  const history = await Attendance.find({ userId: new Types.ObjectId(userId) })
+const getMyAttendanceHistory = async (loggedInUserId: string, childId?: string) => {
+  const loggedInUser = await User.findById(loggedInUserId);
+  if (!loggedInUser || loggedInUser.isDeleted) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  let targetUserId = loggedInUserId;
+
+  if (childId) {
+    const childUser = await User.findById(childId);
+    if (!childUser || childUser.isDeleted) {
+      throw new AppError(httpStatus.NOT_FOUND, "Child profile not found");
+    }
+
+    const childParentIdStr = extractIdString(childUser.parentId);
+    const loggedInUserIdStr = extractIdString(loggedInUserId);
+
+    if (
+      loggedInUser.role === Role.PARENT ||
+      loggedInUser.role === Role.USER ||
+      loggedInUser.role === Role.MEMBER
+    ) {
+      if (childParentIdStr && childParentIdStr !== loggedInUserIdStr) {
+        throw new AppError(
+          httpStatus.FORBIDDEN,
+          "You can only view attendance history for your own child"
+        );
+      }
+    }
+    targetUserId = childId;
+  } else if (loggedInUser.role === Role.PARENT) {
+    const children = await User.find({ parentId: loggedInUserId, isDeleted: { $ne: true } });
+    if (children.length > 0) {
+      targetUserId = children[0]._id.toString();
+    }
+  }
+
+  const history = await Attendance.find({ userId: new Types.ObjectId(targetUserId) })
     .populate("classId")
     .populate("bookingId")
     .sort({ checkInTime: -1 });
