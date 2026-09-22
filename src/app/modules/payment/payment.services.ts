@@ -132,8 +132,9 @@ const createSubscriptionCheckoutSession = async (
     priceId = price.id;
   }
 
-  const successUrl = `${envVars.FRONTEND_URL}/member/payment-success`;
-  const cancelUrl = `${envVars.FRONTEND_URL}/member/payment-failed`;
+  const routePrefix = loggedInUser.role === Role.PARENT ? "parent" : "member";
+  const successUrl = `${envVars.FRONTEND_URL}/${routePrefix}/payment-success`;
+  const cancelUrl = `${envVars.FRONTEND_URL}/${routePrefix}/payment-failed`;
 
   // 3. Create Stripe Checkout Session in subscription mode
   const session = await stripe.checkout.sessions.create({
