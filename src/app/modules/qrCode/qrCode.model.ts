@@ -14,7 +14,4 @@ const dailyQRCodeSchema = new Schema<IDailyQRCode>(
     versionKey: false,
   }
 );
-
-dailyQRCodeSchema.index({ date: 1 }, { unique: true });
-
 export const DailyQRCode = model<IDailyQRCode>("DailyQRCode", dailyQRCodeSchema);
